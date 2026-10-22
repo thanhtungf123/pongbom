@@ -1,0 +1,11 @@
+[
+  { "key": "action", "label": "Action", "href": "/?category=Action", "icon": "monochrome-category-6", "visible": true, "order": 0 },
+  { "key": "adventure", "label": "Adventure", "href": "/?category=Adventure", "icon": "monochrome-category-1", "visible": true, "order": 1 },
+  { "key": "classic", "label": "Classic", "href": "/?category=Classic", "icon": "monochrome-category-2", "visible": true, "order": 2 },
+  { "key": "fighting", "label": "Fighting", "href": "/?category=Fighting", "icon": "monochrome-category-4", "visible": true, "order": 3 },
+  { "key": "kids", "label": "Kids", "href": "/?category=Kids", "icon": "monochrome-category-7", "visible": true, "order": 4 },
+  { "key": "racing", "label": "Racing", "href": "/?category=Racing", "icon": "monochrome-category-3", "visible": true, "order": 5 },
+  { "key": "sport", "label": "Sport", "href": "/?category=Sport", "icon": "monochrome-category-5", "visible": true, "order": 6 },
+  { "key": "two-player", "label": "2 Player", "href": "/?category=2 Player", "icon": "monochrome-category-10", "visible": true, "order": 7 },
+  { "key": "one-player", "label": "1 Player", "href": "/?category=1 Player", "icon": "monochrome-category-9", "visible": true, "order": 8 }
+]

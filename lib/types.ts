@@ -1,0 +1,94 @@
+// Types + hằng số dùng chung (client-safe — KHÔNG import fs ở đây)
+
+export type GameControl = { label: string; keys: string };
+
+export type Game = {
+  slug: string;
+  title: string; // tên hiển thị
+  titleTag?: string; // thẻ <title> / SEO
+  headerLabel?: string; // nhãn ngắn trên header
+  metaDescription?: string;
+  h1?: string; // tiêu đề H1 hiển thị
+  shortDescription: string;
+  descriptionHtml?: string; // nội dung (rich text)
+  iframeUrl: string;
+  thumbnail: string;
+  categories: string[];
+  controls?: GameControl[];
+  rating: number; // điểm trung bình (tự động theo người dùng chấm)
+  ratingSum?: number; // tổng điểm người dùng đã chấm
+  ratingCount?: number; // số lượt chấm
+  plays: number;
+  isNew?: boolean;
+  featured?: boolean;
+  visible?: boolean; // cho phép hiển thị
+  showInHeader?: boolean;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
+  order?: number;
+};
+
+export type Page = {
+  slug: string;
+  titleTag: string;
+  headerLabel?: string;
+  metaDescription?: string;
+  h1: string;
+  contentHtml: string;
+  robotsIndex: boolean;
+  robotsFollow: boolean;
+  showInHeader: boolean;
+  visible: boolean;
+  order: number;
+};
+
+export type FooterLink = { label: string; url: string };
+
+// Một khối (section) trên trang chủ do admin tự cấu hình.
+export type HomeSection = {
+  title: string; // tiêu đề admin tự nhập, vd "Top 2 Player Games"
+  category: string; // label category để lọc game (rỗng = tất cả game)
+  mode: "top" | "new"; // top = nhiều lượt chơi nhất, new = mới thêm nhất
+  limit: number; // số game hiển thị trong khối
+};
+
+export type SiteSettings = {
+  siteName: string;
+  brandText?: string; // chữ logo nếu không dùng ảnh
+  logoUrl?: string; // ảnh logo (Cloudinary)
+  faviconUrl?: string;
+  footerHtml?: string; // (cũ, tương thích)
+  footerText?: string;
+  footerLinks?: FooterLink[];
+  homeSections?: HomeSection[]; // các khối category trên trang chủ
+  homeContentHtml?: string; // nội dung (rich text) cuối trang chủ
+};
+
+export type Category = {
+  key: string;
+  label: string;
+  href: string;
+  icon?: string; // class icon font hoặc emoji
+  visible: boolean;
+  order: number;
+};
+
+export type StatsSummary = {
+  totalViews: number;
+  totalPlays: number;
+  today: { views: number; plays: number };
+  daily: { date: string; views: number; plays: number }[];
+  topGames: { slug: string; title: string; plays: number; views: number }[];
+};
+
+/**
+ * Danh sách permission cho iframe nhúng (giữ đúng theo đối tác Playgama).
+ * `fullscreen` được tách riêng, không nằm ở đây.
+ */
+export const IFRAME_ALLOW =
+  "accelerometer; camera; clipboard-read; clipboard-write; " +
+  "screen-wake-lock; speaker-selection; web-share; geolocation; gyroscope; " +
+  "microphone; xr-spatial-tracking; autoplay; encrypted-media; " +
+  "picture-in-picture; payment; publickey-credentials-get; " +
+  "publickey-credentials-create; storage-access; attribution-reporting; " +
+  "browsing-topics";

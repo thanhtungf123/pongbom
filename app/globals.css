@@ -1,0 +1,350 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* box-sizing an toàn cho các tiện ích Tailwind (vì đã tắt preflight) */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ===== Khối category trên trang chủ (admin cấu hình) ===== */
+.home-section {
+  margin-bottom: 10px;
+}
+/* Tiêu đề khối (h2) trông giống h1 "Top Games" gốc */
+.trending-title h2 {
+  color: var(--title-red);
+}
+.trending-title h2 span.icon {
+  font-size: 24px;
+}
+.home-section-empty {
+  grid-column: 1 / -1;
+  list-style: none;
+  padding: 20px;
+  color: #4a7a1f;
+  font-size: 14px;
+}
+.home-content {
+  margin: 20px 0 10px;
+  padding: 0 10px 10px;
+  color: #2b4b14;
+  line-height: 1.6;
+}
+.home-content h2,
+.home-content h3 {
+  margin: 14px 0 8px;
+  color: #1f3a0e;
+}
+.home-content p {
+  margin: 0 0 12px;
+}
+.home-content a {
+  color: #477a27;
+  text-decoration: underline;
+}
+
+/* ===== Logo placeholder (thay cho logo gốc của mirror) ===== */
+.logo a {
+  background: none !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  height: 84px;
+  padding: 0 4px;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  font-weight: 700;
+}
+.logo .brand-faces {
+  font-size: 30px;
+}
+.logo .brand-word {
+  font-size: 36px;
+  letter-spacing: -0.5px;
+}
+.logo .brand-pong {
+  color: #7dbc00;
+}
+.logo .brand-bom {
+  color: #db5910;
+}
+.logo .brand-dot {
+  color: #0692c9;
+  font-size: 15px;
+  vertical-align: super;
+}
+
+/* ===== Khung game (#game-container) ===== */
+/* Ép các phần tử cha full width để khung game không bị co nhỏ theo nội dung */
+.game-page-top-left,
+.game {
+  width: 100% !important;
+}
+#game-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto;
+  position: relative;
+  display: block;
+}
+/* Hộp tỉ lệ 16:9 bằng padding-bottom (KHÔNG aspect-ratio -> tránh bug chạm iOS) */
+.game-screen {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%;
+  overflow: hidden;
+  background: #000;
+  border-radius: 10px 10px 0 0;
+}
+.game-screen > #game-frame {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  border: 0;
+}
+.game-bottom-bar {
+  display: flex;
+}
+/* Fullscreen (Android native + iOS pseudo) */
+#game-container.is-fs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* fallback; JS sẽ override bằng px từ visualViewport */
+  height: 100dvh;
+  max-width: none !important;
+  margin: 0;
+  z-index: 9999;
+  background: #000;
+}
+#game-container.is-fs .game-screen {
+  height: 100% !important;
+  padding-bottom: 0 !important;
+  border-radius: 0;
+}
+#game-container.is-fs .game-bottom-bar {
+  display: none !important;
+}
+.game-full-screen {
+  cursor: pointer;
+}
+.fs-exit {
+  position: absolute;
+  z-index: 10000;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  right: calc(env(safe-area-inset-right, 0px) + 10px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.fs-exit svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ===== Sao đánh giá (nửa sao chính xác) ===== */
+.stars {
+  position: relative;
+  display: inline-block;
+  font-size: 22px;
+  line-height: 1;
+  color: #c9d4c0;
+  white-space: nowrap;
+}
+.stars::before {
+  content: "★★★★★";
+}
+.stars-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  color: #f5a623;
+  white-space: nowrap;
+  display: block;
+}
+.stars-fill::before {
+  content: "★★★★★";
+}
+
+/* Sao cho người dùng bấm chấm điểm */
+.rate-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.rate-stars.rate-stars {
+  cursor: pointer;
+}
+.rate-stars .star-hit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+}
+.rate-stars .star-hit:nth-child(2) {
+  left: 0;
+}
+.rate-stars .star-hit:nth-child(3) {
+  left: 20%;
+}
+.rate-stars .star-hit:nth-child(4) {
+  left: 40%;
+}
+.rate-stars .star-hit:nth-child(5) {
+  left: 60%;
+}
+.rate-stars .star-hit:nth-child(6) {
+  left: 80%;
+}
+.rate-note {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ===== Nút Embed / Post ===== */
+.gp-embed-btn,
+.gp-post-btn {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.gp-embed-btn {
+  background: #cac1a2;
+  color: #4a442f;
+}
+.gp-post-btn {
+  background: #111111;
+  color: #ffffff;
+}
+/* Share: ẩn trên desktop, hiện trên mobile */
+.gp-share-btn {
+  display: none;
+  background: #dc5a00;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Nút Go to Desktop ẩn trên desktop (chỉ hiện ở media mobile) */
+.go-desktop {
+  display: none;
+}
+
+/* ===== Chip category ===== */
+.gp-category-items a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 12px;
+  text-decoration: none;
+  color: #386a81;
+  font-weight: 700;
+  font-size: 13px;
+}
+.gp-category-items .icon {
+  font-size: 16px;
+}
+
+/* ===== Trang nội dung tĩnh (do admin tạo) — card trắng như trang chính ===== */
+.static-page {
+  margin: 14px;
+  padding: 26px 30px 34px;
+  background: #fff;
+  border: 2px solid #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  color: #333;
+  font-size: 1.25rem;
+  line-height: 1.75;
+}
+.static-page h1 {
+  color: #eb0000;
+  font-size: 2.1rem;
+  margin: 0 0 18px;
+  text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.5);
+}
+.static-page h2 {
+  font-size: 1.6rem;
+  margin: 1em 0 0.4em;
+}
+.static-page h3 {
+  font-size: 1.3rem;
+  margin: 1em 0 0.4em;
+}
+.static-page ul,
+.static-page ol {
+  padding-left: 1.5em;
+}
+.static-page a {
+  color: #0692c9;
+}
+
+/* Link admin ở footer */
+.footer-admin {
+  text-align: center;
+  padding: 6px 0 2px;
+}
+.footer-admin a {
+  color: #93a0bd;
+  font-size: 12px;
+  text-decoration: none;
+}
+.footer-admin a:hover {
+  color: #eb0000;
+}
+
+/* Ô placeholder "Coming soon" trong game-list */
+.game-list li .image.ph {
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 75px;
+  border-radius: 10px;
+  font-size: 30px;
+  background: linear-gradient(135deg, #bfe3ff, #d9f3c7);
+}
+.game-list li .title.ph {
+  opacity: 0.6;
+}

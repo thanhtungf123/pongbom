@@ -1,0 +1,31 @@
+[
+  {
+    "slug": "bomb-pong-online",
+    "title": "Bomb Pong Online",
+    "shortDescription": "Classic pong with an explosive twist — bounce the bomb past your rival before it blows up on your side.",
+    "description": "Bomb Pong Online is a fast-paced arcade take on the timeless pong game. Instead of a harmless ball, you are rallying a live bomb across the table. Move your paddle to send it back to your opponent, build up speed, and make sure the explosion happens on the other side. Play solo against the AI or grab a friend for a tense two-player duel on the same screen.",
+    "descriptionHtml": "<p><b>Bomb Pong Online</b> is a fast-paced arcade twist on the timeless <b>Pong</b> game. Instead of a harmless ball, two players rally a live <b>bomb</b> back and forth across the table. Every hit raises the intensity, and the pressure builds until the bomb finally explodes on one side. Play solo against the <b>CPU</b> as a <b>1 Player</b>, or challenge a friend on the same computer in <b>2 Player</b> mode.</p><h2>How to Play Bomb Pong Online?</h2><ol><li><b>Move your paddle:</b> slide your paddle up and down to keep the bomb in play and bounce it toward your opponent.</li><li><b>Build up speed:</b> each rally makes the bomb faster. The longer the volley, the harder it is to react in time.</li><li><b>Win the round:</b> make sure the explosion happens on your opponent's side. If the bomb blows up on your side, you lose the point.</li></ol><h2>Controls</h2><ul><li><b>Player 1:</b> use the <b>W</b> and <b>S</b> keys to move the left paddle up and down.</li><li><b>Player 2:</b> use the <b>Up Arrow</b> and <b>Down Arrow</b> keys to move the right paddle.</li><li><b>Touch devices:</b> drag your paddle up and down with your finger on your side of the screen.</li></ul><h2>Game Modes</h2><ul><li><b>Local Match:</b> play against the CPU or a friend on the same device.</li><li><b>Online Match:</b> compete against other players in ranked games.</li><li><b>Tutorial:</b> learn the timing and mechanics before you jump into a real match.</li></ul><h2>Tips to Win</h2><ul><li><b>Watch the timing</b> rather than the bomb's position. Bomb Pong is a timing game at heart.</li><li>Stay <b>centered</b> so you can react to shots aimed at either corner.</li><li>Use <b>fast returns</b> to pressure your opponent into a mistake near the explosion.</li></ul><h2>Can I Play Bomb Pong Online on Mobile?</h2><p>Yes. <b>Bomb Pong Online</b> works on both <b>desktop</b> and <b>mobile devices</b> such as phones and tablets. On mobile you control your paddle by touching and dragging on your side of the screen, and you can switch to <b>full-screen</b> for a bigger view.</p>",
+    "iframeUrl": "https://playgama.com/export/game/bomb-pong-online?clid=p_5d89eb68-55d5-4821-9e31-7795c2f92046",
+    "thumbnail": "/thumbnails/bomb-pong-online.svg",
+    "width": 800,
+    "height": 450,
+    "categories": ["2 Player", "Arcade", "Ball", "Skill"],
+    "controls": [
+      { "label": "Player 1", "keys": "W / S" },
+      { "label": "Player 2", "keys": "Arrow Up / Arrow Down" },
+      { "label": "Touch", "keys": "Drag paddle up & down" }
+    ],
+    "rating": 4.6,
+    "plays": 128450,
+    "featured": true,
+    "isNew": true,
+    "titleTag": "Bomb Pong Online — Play Free",
+    "metaDescription": "Play Bomb Pong Online free in your browser. Classic pong with an explosive twist.",
+    "h1": "Bomb Pong Online",
+    "visible": true,
+    "showInHeader": false,
+    "robotsIndex": true,
+    "robotsFollow": true,
+    "order": 0
+  }
+]

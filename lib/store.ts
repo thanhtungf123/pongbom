@@ -1,0 +1,312 @@
+// Tầng service: toàn bộ truy cập dữ liệu đi qua đây (MongoDB Atlas).
+// API routes + trang chỉ gọi các hàm này — dễ bảo trì, dễ scale.
+import { dbConnect } from "./db/connect";
+import {
+  GameModel,
+  PageModel,
+  SiteModel,
+  CategoryModel,
+  CounterModel,
+  CLEAN,
+} from "./db/models";
+import type { Category, Game, Page, SiteSettings, StatsSummary } from "./types";
+
+/* ===================== GAMES ===================== */
+
+export async function getGames(): Promise<Game[]> {
+  await dbConnect();
+  return GameModel.find({}, CLEAN).sort({ order: 1 }).lean() as unknown as Game[];
+}
+
+/** Game hiển thị công khai (visible !== false), có thể giới hạn số lượng. */
+export async function getVisibleGames(limit?: number): Promise<Game[]> {
+  await dbConnect();
+  const q = GameModel.find({ visible: { $ne: false } }, CLEAN).sort({ order: 1 });
+  if (limit) q.limit(limit);
+  return q.lean() as unknown as Game[];
+}
+
+export async function getGame(slug: string): Promise<Game | null> {
+  await dbConnect();
+  return GameModel.findOne({ slug }, CLEAN).lean() as unknown as Game | null;
+}
+
+/**
+ * Lấy game cho 1 khối trang chủ.
+ *  - category rỗng = tất cả game hiển thị.
+ *  - mode "top" = nhiều lượt chơi nhất; "new" = mới thêm gần đây nhất.
+ */
+export async function getSectionGames(
+  category: string,
+  mode: "top" | "new",
+  limit: number
+): Promise<Game[]> {
+  await dbConnect();
+  const filter: Record<string, unknown> = { visible: { $ne: false } };
+  if (category) filter.categories = category;
+  const sort: Record<string, -1 | 1> =
+    mode === "new" ? { createdAt: -1 } : { plays: -1 };
+  return GameModel.find(filter, CLEAN)
+    .sort(sort)
+    .limit(limit > 0 ? limit : 14)
+    .lean() as unknown as Game[];
+}
+
+export async function upsertGame(game: Game): Promise<void> {
+  await dbConnect();
+  const existing = await GameModel.findOne({ slug: game.slug }).lean();
+  const order =
+    game.order ??
+    ((existing as { order?: number } | null)?.order ??
+      (await GameModel.countDocuments()));
+  await GameModel.updateOne(
+    { slug: game.slug },
+    { $set: { ...game, order } },
+    { upsert: true }
+  );
+}
+
+export async function deleteGame(slug: string): Promise<void> {
+  await dbConnect();
+  await GameModel.deleteOne({ slug });
+}
+
+/**
+ * Người dùng chấm điểm 1 game (1–5 sao). Cộng dồn tổng điểm + số lượt rồi tính
+ * lại điểm trung bình. Trả về điểm mới và số lượt chấm.
+ */
+export async function rateGame(
+  slug: string,
+  value: number
+): Promise<{ rating: number; ratingCount: number } | null> {
+  await dbConnect();
+  const v = Math.max(1, Math.min(5, Math.round(value)));
+  const doc = (await GameModel.findOneAndUpdate(
+    { slug },
+    { $inc: { ratingSum: v, ratingCount: 1 } },
+    { new: true }
+  ).lean()) as unknown as
+    | { ratingSum?: number; ratingCount?: number }
+    | null;
+  if (!doc) return null;
+  const sum = doc.ratingSum || 0;
+  const count = doc.ratingCount || 0;
+  const rating = count ? Math.round((sum / count) * 10) / 10 : 0;
+  await GameModel.updateOne({ slug }, { $set: { rating } });
+  return { rating, ratingCount: count };
+}
+
+export async function getAllCategories(): Promise<string[]> {
+  const games = await getVisibleGames();
+  const set = new Set<string>();
+  games.forEach((g) => (g.categories || []).forEach((c) => set.add(c)));
+  return Array.from(set).sort();
+}
+
+/* ===================== PAGES ===================== */
+
+export async function getPages(): Promise<Page[]> {
+  await dbConnect();
+  return PageModel.find({}, CLEAN).sort({ order: 1 }).lean() as unknown as Page[];
+}
+
+export async function getVisiblePages(): Promise<Page[]> {
+  await dbConnect();
+  return PageModel.find({ visible: { $ne: false } }, CLEAN)
+    .sort({ order: 1 })
+    .lean() as unknown as Page[];
+}
+
+/** Trang đã "public" để hiển thị ở footer (visible && showInHeader). */
+export async function getFooterPages(): Promise<Page[]> {
+  await dbConnect();
+  return PageModel.find({ visible: { $ne: false }, showInHeader: true }, CLEAN)
+    .sort({ order: 1 })
+    .lean() as unknown as Page[];
+}
+
+export async function getPage(slug: string): Promise<Page | null> {
+  await dbConnect();
+  return PageModel.findOne({ slug }, CLEAN).lean() as unknown as Page | null;
+}
+
+export async function upsertPage(page: Page): Promise<void> {
+  await dbConnect();
+  const existing = await PageModel.findOne({ slug: page.slug }).lean();
+  const order =
+    page.order ??
+    ((existing as { order?: number } | null)?.order ??
+      (await PageModel.countDocuments()));
+  await PageModel.updateOne(
+    { slug: page.slug },
+    { $set: { ...page, order } },
+    { upsert: true }
+  );
+}
+
+export async function deletePage(slug: string): Promise<void> {
+  await dbConnect();
+  await PageModel.deleteOne({ slug });
+}
+
+/** Cập nhật thứ tự trang theo mảng slug. */
+export async function reorderPages(slugs: string[]): Promise<void> {
+  await dbConnect();
+  await PageModel.bulkWrite(
+    slugs.map((slug, i) => ({
+      updateOne: { filter: { slug }, update: { $set: { order: i } } },
+    }))
+  );
+}
+
+/* ===================== SITE ===================== */
+
+const DEFAULT_SITE: SiteSettings = {
+  siteName: "PongBom",
+  brandText: "PONGBOM.fun",
+  footerText: "© PongBom — All games are property of their respective owners.",
+  // Mặc định không có link tĩnh: Home được thêm cố định, còn lại lấy từ các
+  // trang admin đã "public lên footer". Mục này chỉ dùng cho link ngoài tùy chọn.
+  footerLinks: [],
+};
+
+export async function getSite(): Promise<SiteSettings> {
+  await dbConnect();
+  const doc = (await SiteModel.findOne({ key: "main" }, CLEAN).lean()) as
+    | Partial<SiteSettings>
+    | null;
+  return { ...DEFAULT_SITE, ...(doc || {}) };
+}
+
+export async function saveSite(site: SiteSettings): Promise<void> {
+  await dbConnect();
+  await SiteModel.updateOne(
+    { key: "main" },
+    { $set: { ...site, key: "main" } },
+    { upsert: true }
+  );
+}
+
+/* ===================== CATEGORIES ===================== */
+
+// Bộ category mặc định (dùng khi DB chưa có) — đúng icon font gốc.
+export const DEFAULT_CATEGORIES: Category[] = [
+  { key: "action", label: "Action", href: "/?category=Action", icon: "monochrome-category-6", visible: true, order: 0 },
+  { key: "adventure", label: "Adventure", href: "/?category=Adventure", icon: "monochrome-category-1", visible: true, order: 1 },
+  { key: "classic", label: "Classic", href: "/?category=Classic", icon: "monochrome-category-2", visible: true, order: 2 },
+  { key: "fighting", label: "Fighting", href: "/?category=Fighting", icon: "monochrome-category-4", visible: true, order: 3 },
+  { key: "kids", label: "Kids", href: "/?category=Kids", icon: "monochrome-category-7", visible: true, order: 4 },
+  { key: "racing", label: "Racing", href: "/?category=Racing", icon: "monochrome-category-3", visible: true, order: 5 },
+  { key: "sport", label: "Sport", href: "/?category=Sport", icon: "monochrome-category-5", visible: true, order: 6 },
+  { key: "two-player", label: "2 Player", href: "/?category=2 Player", icon: "monochrome-category-10", visible: true, order: 7 },
+  { key: "one-player", label: "1 Player", href: "/?category=1 Player", icon: "monochrome-category-9", visible: true, order: 8 },
+];
+
+// Category cần giữ field `key` (CLEAN loại bỏ key cho Site nên không dùng ở đây).
+const CLEAN_CAT = { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 } as const;
+
+export async function getCategories(): Promise<Category[]> {
+  await dbConnect();
+  const rows = (await CategoryModel.find({}, CLEAN_CAT)
+    .sort({ order: 1 })
+    .lean()) as unknown as Category[];
+  return rows.length ? rows : DEFAULT_CATEGORIES;
+}
+
+export async function getVisibleCategories(): Promise<Category[]> {
+  return (await getCategories()).filter((c) => c.visible !== false);
+}
+
+export async function upsertCategory(cat: Category): Promise<void> {
+  await dbConnect();
+  const existing = await CategoryModel.findOne({ key: cat.key }).lean();
+  const order =
+    cat.order ??
+    ((existing as { order?: number } | null)?.order ??
+      (await CategoryModel.countDocuments()));
+  await CategoryModel.updateOne(
+    { key: cat.key },
+    { $set: { ...cat, order } },
+    { upsert: true }
+  );
+}
+
+export async function deleteCategory(key: string): Promise<void> {
+  await dbConnect();
+  await CategoryModel.deleteOne({ key });
+}
+
+export async function reorderCategories(keys: string[]): Promise<void> {
+  await dbConnect();
+  await CategoryModel.bulkWrite(
+    keys.map((key, i) => ({
+      updateOne: { filter: { key }, update: { $set: { order: i } } },
+    }))
+  );
+}
+
+/* ===================== STATS / ANALYTICS ===================== */
+
+function todayKey(): string {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+/** Ghi nhận 1 lượt: type = 'view' | 'play'. */
+export async function trackEvent(
+  type: "view" | "play",
+  slug?: string
+): Promise<void> {
+  await dbConnect();
+  const field = type === "play" ? "plays" : "views";
+  const inc = { $inc: { [field]: 1 } };
+  const ops = [
+    CounterModel.updateOne({ scope: "total", key: "all" }, inc, { upsert: true }),
+    CounterModel.updateOne({ scope: "daily", key: todayKey() }, inc, {
+      upsert: true,
+    }),
+  ];
+  if (slug) {
+    ops.push(
+      CounterModel.updateOne({ scope: "game", key: slug }, inc, { upsert: true })
+    );
+    // Lượt chơi hiển thị (game.plays) chạy theo người dùng thật, không do admin đặt.
+    if (type === "play")
+      ops.push(GameModel.updateOne({ slug }, { $inc: { plays: 1 } }));
+  }
+  await Promise.all(ops);
+}
+
+export async function getStats(): Promise<StatsSummary> {
+  await dbConnect();
+  const [total, daily, games, topRaw] = await Promise.all([
+    CounterModel.findOne({ scope: "total", key: "all" }).lean(),
+    CounterModel.find({ scope: "daily" }).sort({ key: -1 }).limit(14).lean(),
+    GameModel.find({}, { slug: 1, title: 1, _id: 0 }).lean(),
+    CounterModel.find({ scope: "game" }).sort({ plays: -1 }).limit(10).lean(),
+  ]);
+  const t = (total as unknown as { views?: number; plays?: number } | null) || {};
+  const gameRows = games as unknown as { slug: string; title: string }[];
+  const dailyRows = daily as unknown as {
+    key: string;
+    views?: number;
+    plays?: number;
+  }[];
+  const titleOf = new Map(gameRows.map((g) => [g.slug, g.title]));
+  const today = dailyRows.find((d) => d.key === todayKey());
+  return {
+    totalViews: t.views || 0,
+    totalPlays: t.plays || 0,
+    today: { views: today?.views || 0, plays: today?.plays || 0 },
+    daily: dailyRows
+      .map((d) => ({ date: d.key, views: d.views || 0, plays: d.plays || 0 }))
+      .reverse(),
+    topGames: (topRaw as unknown as { key: string; plays?: number; views?: number }[]).map(
+      (g) => ({
+        slug: g.key,
+        title: titleOf.get(g.key) || g.key,
+        plays: g.plays || 0,
+        views: g.views || 0,
+      })
+    ),
+  };
+}

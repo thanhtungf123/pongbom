@@ -1,0 +1,15 @@
+[
+  {
+    "slug": "about",
+    "titleTag": "About PongBom",
+    "headerLabel": "About",
+    "metaDescription": "Learn more about PongBom — free online games you can play in your browser.",
+    "h1": "About PongBom",
+    "contentHtml": "<p>PongBom is a free online games portal where you can play games instantly in your browser — no download, no install.</p>",
+    "robotsIndex": true,
+    "robotsFollow": true,
+    "showInHeader": true,
+    "visible": true,
+    "order": 0
+  }
+]

@@ -1,0 +1,240 @@
+/*
+  Giao diện MOBILE — thiết kế theo m.twoplayergames.org (ảnh khách gửi).
+  Mirror không có bản mobile nên mình tự viết. Nạp SAU site.css để đè desktop.
+  Đặc điểm mobile: header = logo + "Go to Desktop"; ẩn menu/search; nội dung
+  nằm trực tiếp trên nền cỏ xanh (không panel); lưới game 3 cột tile trắng.
+*/
+
+/* === Menu header: GIỮ NGUYÊN lưới + scallop gốc (site.css).
+   Item thứ 12+ nằm trong dropdown "More" (xử lý bởi components/TopMenu.tsx).
+   Chỉ bổ sung style cho icon dạng emoji của category do admin thêm. === */
+.cat-icon.cat-icon-emoji {
+  font-family: initial;
+  color: initial;
+  line-height: 1;
+}
+
+@media (max-width: 820px) {
+  /* ===== Bỏ layout desktop cứng (grid quảng cáo + min-width 980) ===== */
+  body {
+    display: block !important;
+  }
+  .site-body {
+    display: block !important;
+    width: 100% !important;
+  }
+  .site-left {
+    grid-area: auto !important;
+    width: 100% !important;
+    padding: 0 !important;
+  }
+  /* .site-main là panel xanh nhạt + min-width:980 -> bỏ, để lộ nền cỏ xanh */
+  .site-main {
+    min-width: 0 !important;
+    width: auto !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    min-height: 0 !important;
+    padding: 0 0 20px !important;
+  }
+  .site-top {
+    min-width: 0 !important;
+    width: auto !important;
+  }
+
+  /* ===== Ẩn menu category + search + game box ===== */
+  .site-top-container {
+    display: none !important;
+  }
+  .top-search,
+  .top-game-box {
+    display: none !important;
+  }
+
+  /* ===== Header mobile: logo + Go to Desktop ===== */
+  .top-space {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    height: auto !important;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--site-main-color);
+    border-bottom: 6px solid #8cc152;
+  }
+  .logo {
+    grid-area: auto !important;
+    align-self: center !important;
+  }
+  .logo a {
+    height: 52px !important;
+    gap: 6px;
+  }
+  .logo .brand-faces {
+    font-size: 22px !important;
+  }
+  .logo .brand-word {
+    font-size: 26px !important;
+  }
+  .go-desktop {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 8px 12px;
+    color: #333;
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1.1;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+  }
+  .go-desktop svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ===== Tiêu đề section trên nền xanh ===== */
+  .module-heading {
+    height: auto !important;
+    padding: 14px 14px 4px !important;
+  }
+  .module-heading .trending-title h1 {
+    color: #2f3b2a !important;
+    font-size: 26px;
+  }
+  .game-history {
+    display: none !important;
+  }
+
+  /* ===== Lưới game 3 cột, tile trắng + tên dưới ===== */
+  .game-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-auto-rows: auto !important;
+    gap: 10px !important;
+    margin: 0 12px !important;
+    padding: 0 !important;
+  }
+  .game-list li {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background: #fff;
+    border-radius: 12px;
+    padding: 5px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+  }
+  .game-list li a {
+    display: block;
+    text-decoration: none;
+  }
+  .game-list li .image {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .game-list li .image img {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+  }
+  .game-list li .image.ph {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+  }
+  .game-list li .title {
+    font-size: 13px;
+    color: #333;
+    margin-top: 5px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ===== Trang game ===== */
+  .game-page-top {
+    padding: 0 !important;
+  }
+  #game-container {
+    border-radius: 0;
+  }
+  .game-page-related {
+    margin-top: 14px;
+  }
+
+  /* Bảng dưới: ẩn tiêu đề/ảnh/sao; chỉ hiện Post + Share ở giữa */
+  .game-page-bottom {
+    padding: 0 !important;
+  }
+  .game-page-bottom-top {
+    display: block !important;
+    padding: 0 !important;
+  }
+  .game-page-title,
+  .game-page-title-img,
+  .game-page-rate {
+    display: none !important;
+  }
+  .game-page-social {
+    display: flex !important;
+    justify-content: center;
+    gap: 10px;
+    height: auto !important;
+    padding: 16px 14px;
+  }
+  .game-page-social .gp-embed-btn {
+    display: none !important;
+  }
+  .game-page-social .gp-share-btn {
+    display: inline-flex !important;
+  }
+  .gp-post-btn,
+  .gp-share-btn {
+    font-size: 15px;
+    padding: 9px 18px;
+    border-radius: 999px;
+  }
+
+  /* Mô tả trên nền xanh */
+  .game-page-description {
+    padding: 4px 16px 16px !important;
+  }
+  .game-page-description-content {
+    font-size: 1.2rem !important;
+    line-height: 1.6;
+    padding-right: 0 !important;
+    color: #2b3326;
+  }
+  .game-page-description-content h2 {
+    font-size: 1.7rem;
+  }
+  .gp-categories {
+    padding: 0 16px 16px !important;
+  }
+}
+
+/* === Scallop: GIỮ NGUYÊN lớp per-li gốc của mirror (site.css):
+   `.top-menu ul li:nth-child(-n+11){background:url(SVG) repeat-x .5px 43px}`.
+   Đó là sóng nhỏ gọn như bản gốc (hình 2). KHÔNG thêm lớp scallop trên `ul`
+   (lớp đó lệch pha so với per-li -> sóng to & gãy như hình 23/25).
+
+   Chỉ chỉnh 1 thứ: số CỘT theo số item (--menu-cols, do TopMenu.tsx đặt) để
+   không còn cột trống -> không có ô mất scallop (gãy sóng ở hình 23). "More"
+   (li đầu tiên) luôn ghim vào cột cuối. Mỗi ô rộng ~1/cols nên scallop per-li
+   vẫn đều & liền như bản gốc. === */
+.top-menu ul {
+  grid-template-columns: repeat(var(--menu-cols, 11), 1fr) !important;
+}
+.top-menu ul li:first-child {
+  grid-column: var(--menu-cols, 11) !important;
+}
