@@ -4,23 +4,23 @@ import { getSite, getFooterPages } from "@/lib/store";
 export default async function Footer() {
   const [site, pages] = await Promise.all([getSite(), getFooterPages()]);
 
-  // Gộp các mục footer từ nhiều nguồn và KHỬ TRÙNG theo URL:
-  //  1) Home cố định (trang chủ "/")
-  //  2) các trang admin đã bật "public lên footer"
-  //  3) link tùy chỉnh trong Site settings (cho link ngoài, nếu có)
-  // Nhờ vậy nếu footerLinks cũ còn "About" trùng trang About thì chỉ hiện 1 lần.
-  const seen = new Set<string>();
-  const items: { label: string; url: string }[] = [];
-  const add = (label: string, url: string) => {
-    const key = (url || "").replace(/\/+$/, "") || "/";
-    if (!label || seen.has(key)) return;
-    seen.add(key);
-    items.push({ label, url });
-  };
-
-  add("Home", "/");
-  pages.forEach((p) => add(p.headerLabel || p.h1, `/${p.slug}`));
-  (site.footerLinks || []).forEach((l) => add(l.label, l.url));
+  // MENU footer: nếu admin đã cấu hình ở tab "Menu" thì dùng đúng danh sách đó.
+  // Nếu chưa cấu hình (chưa từng lưu) -> fallback logic cũ để không mất Home/trang.
+  let items: { label: string; url: string }[] = [];
+  if (Array.isArray(site.menuLinks) && site.menuLinks.length > 0) {
+    items = site.menuLinks.filter((l) => l.label && l.url);
+  } else {
+    const seen = new Set<string>();
+    const add = (label: string, url: string) => {
+      const key = (url || "").replace(/\/+$/, "") || "/";
+      if (!label || seen.has(key)) return;
+      seen.add(key);
+      items.push({ label, url });
+    };
+    add("Home", "/");
+    pages.forEach((p) => add(p.headerLabel || p.h1, `/${p.slug}`));
+    (site.footerLinks || []).forEach((l) => add(l.label, l.url));
+  }
 
   return (
     <footer>

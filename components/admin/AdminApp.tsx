@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   Category,
+  FooterLink,
   Game,
   HomeSection,
   Page,
@@ -11,6 +12,7 @@ import type {
 } from "@/lib/types";
 import RichText from "./RichText";
 import ImageUpload from "./ImageUpload";
+import { categoryPath } from "@/lib/slug";
 
 /* ----------------------------- helpers ----------------------------- */
 
@@ -211,7 +213,7 @@ function SeoFields({
 /**
  * Chọn category cho game dựa trên các category đã tạo (admin không gõ tay).
  * Bấm vào ô sẽ xổ ra bảng checkbox để tích chọn. Giá trị lưu là label của
- * category (khớp với cách lọc /?category=Label ở trang chủ).
+ * category (dùng để lọc ở trang danh mục /{slug}).
  */
 function CategoryPicker({
   value,
@@ -560,24 +562,10 @@ function PageForm({
 
       <SeoFields draft={d} set={set} />
 
-      {/* Public trang lên footer (khu vực Home / About) */}
-      <div className="check-row">
-        <Check
-          label="Public lên footer (Home / About)"
-          checked={Boolean(d.showInHeader)}
-          onChange={(v) => set("showInHeader", v)}
-        />
-      </div>
-      <Field
-        label="Nhãn hiển thị ở footer"
-        hint="Ngắn gọn, vd: About. Để trống sẽ dùng H1."
-      >
-        <input
-          className="field-input"
-          value={(d.headerLabel as string) || ""}
-          onChange={(e) => set("headerLabel", e.target.value)}
-        />
-      </Field>
+      <p className="field-hint">
+        Muốn trang này xuất hiện ở menu (gần footer)? Vào tab <b>Menu</b> và thêm
+        liên kết tới <b>/{(d.slug as string) || "slug"}</b>.
+      </p>
 
       <Field label="Nội dung">
         <RichText
@@ -616,11 +604,6 @@ function SiteForm({ toast }: { toast: (m: string) => void }) {
     }
   };
 
-  const links = d.footerLinks || [];
-  const setLink = (i: number, key: string, val: string) => {
-    const arr = links.map((l, x) => (x === i ? { ...l, [key]: val } : l));
-    set("footerLinks", arr);
-  };
 
   return (
     <div className="form-panel">
@@ -679,42 +662,10 @@ function SiteForm({ toast }: { toast: (m: string) => void }) {
               onChange={(e) => set("footerText", e.target.value)}
             />
           </Field>
-          <div className="field">
-            <label className="field-label">Liên kết footer (tùy chọn)</label>
-            <div className="field-hint">
-              Chỉ dùng cho link NGOÀI. Footer đã tự có &quot;Home&quot; và các
-              trang bật &quot;Public lên footer&quot; (quản lý ở tab Trang). Link
-              trùng URL với trang sẽ tự bị bỏ.
-            </div>
-            {links.map((l, i) => (
-              <div className="link-row" key={i}>
-                <input
-                  className="field-input"
-                  placeholder="Nhãn (vd: About)"
-                  value={l.label}
-                  onChange={(e) => setLink(i, "label", e.target.value)}
-                />
-                <input
-                  className="field-input"
-                  placeholder="URL (vd /about hoặc https://…)"
-                  value={l.url}
-                  onChange={(e) => setLink(i, "url", e.target.value)}
-                />
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={() => set("footerLinks", links.filter((_, x) => x !== i))}
-                >
-                  Xóa
-                </button>
-              </div>
-            ))}
-            <button
-              className="btn btn-sm"
-              onClick={() => set("footerLinks", [...links, { label: "", url: "" }])}
-            >
-              + Thêm liên kết
-            </button>
-          </div>
+          <p className="field-hint">
+            Các liên kết menu (Home, About…) hiển thị gần footer giờ quản lý ở tab{" "}
+            <b>Menu</b> riêng.
+          </p>
         </>
       )}
     </div>
@@ -747,7 +698,8 @@ function CategoryForm({
   const save = async () => {
     if (!(d.label as string)?.trim()) return toast("Nhập tên category");
     const key = (d.key as string) || slugify(d.label as string);
-    const href = (d.href as string) || `/?category=${d.label}`;
+    // URL danh mục luôn tự suy ra từ tên (giống twoplayergames): /{slug}
+    const href = categoryPath(d.label as string);
     setBusy(true);
     try {
       const payload = { ...d, key, href };
@@ -780,11 +732,15 @@ function CategoryForm({
           onChange={(e) => set("label", e.target.value)}
         />
       </Field>
-      <Field label="Link lọc" hint="Để trống sẽ tự tạo dạng /?category=Tên">
+      <Field
+        label="Đường dẫn trang danh mục"
+        hint="Tự tạo từ tên — giống twoplayergames.org. Không cần nhập."
+      >
         <input
           className="field-input"
-          value={(d.href as string) || ""}
-          onChange={(e) => set("href", e.target.value)}
+          value={(d.label as string) ? categoryPath(d.label as string) : ""}
+          readOnly
+          disabled
         />
       </Field>
       <Field
@@ -905,7 +861,7 @@ function CategoriesTab({
               <td>
                 <span className="count-badge">{counts[c.label] || 0}</span>
               </td>
-              <td className="muted">{c.href}</td>
+              <td className="muted">{categoryPath(c.label)}</td>
               <td>
                 <button
                   className={`pill ${c.visible !== false ? "pill-on" : "pill-off"}`}
@@ -933,6 +889,172 @@ function CategoriesTab({
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+/* ----------------------------- Menu ----------------------------- */
+
+/**
+ * Quản lý MENU các trang (hiển thị gần footer: Home, About, Test…).
+ * Hoàn toàn TÁCH BIỆT với thanh category trên đầu (thanh đó chỉ để lọc game).
+ */
+function MenuTab({ toast }: { toast: (m: string) => void }) {
+  const [site, setSite] = useState<SiteSettings | null>(null);
+  const [pages, setPages] = useState<Page[]>([]);
+  const [menu, setMenu] = useState<FooterLink[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    Promise.all([
+      api("/api/site", "GET").then((r) => r.site as SiteSettings),
+      api("/api/pages", "GET")
+        .then((r) => (r.pages as Page[]) || [])
+        .catch(() => [] as Page[]),
+    ]).then(([s, ps]) => {
+      setSite(s);
+      setPages(ps);
+      // Đã cấu hình menu -> dùng luôn. Chưa -> gợi ý mặc định (Home + các trang).
+      if (Array.isArray(s.menuLinks) && s.menuLinks.length > 0) {
+        setMenu(s.menuLinks);
+      } else {
+        const seed: FooterLink[] = [{ label: "Home", url: "/" }];
+        ps
+          .filter((p) => p.visible !== false && p.showInHeader)
+          .forEach((p) =>
+            seed.push({ label: p.headerLabel || p.h1, url: `/${p.slug}` })
+          );
+        setMenu(seed);
+      }
+    });
+  }, []);
+
+  if (!site) return <div className="loading">Đang tải…</div>;
+
+  const setItem = (i: number, key: keyof FooterLink, val: string) =>
+    setMenu(menu.map((m, x) => (x === i ? { ...m, [key]: val } : m)));
+
+  const add = (item: FooterLink = { label: "", url: "" }) =>
+    setMenu([...menu, item]);
+
+  const remove = (i: number) => setMenu(menu.filter((_, x) => x !== i));
+
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= menu.length) return;
+    const arr = [...menu];
+    const [m] = arr.splice(from, 1);
+    arr.splice(to, 0, m);
+    setMenu(arr);
+  };
+
+  const save = async () => {
+    setBusy(true);
+    try {
+      const clean = menu.filter((m) => m.label.trim() && m.url.trim());
+      await api("/api/site", "PUT", { ...site, menuLinks: clean });
+      setSite({ ...site, menuLinks: clean });
+      toast("Đã lưu menu");
+    } catch (e) {
+      toast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Trang chưa có trong menu -> cho thêm nhanh
+  const usedUrls = new Set(menu.map((m) => m.url.replace(/\/+$/, "")));
+  const addablePages = pages.filter(
+    (p) => p.visible !== false && !usedUrls.has(`/${p.slug}`)
+  );
+
+  return (
+    <div className="form-panel">
+      <div className="form-head">
+        <h2>Menu (gần footer)</h2>
+        <button className="btn btn-primary" onClick={save} disabled={busy}>
+          {busy ? "Đang lưu…" : "Lưu"}
+        </button>
+      </div>
+
+      <p className="field-hint" style={{ marginBottom: 14 }}>
+        Menu này hiển thị ở gần chân trang (Home, About…). Tách biệt hoàn toàn với
+        thanh category trên đầu (thanh đó chỉ để lọc game). Nhãn tự nhập, link có
+        thể là trang nội bộ (vd <b>/about</b>) hoặc link ngoài (https://…).
+      </p>
+
+      <div className="list-head">
+        <h3 style={{ margin: 0 }}>Các mục ({menu.length})</h3>
+        <button className="btn btn-primary" onClick={() => add()}>
+          + Thêm mục
+        </button>
+      </div>
+
+      {menu.length === 0 && (
+        <div className="muted" style={{ marginBottom: 12 }}>
+          Chưa có mục nào. Bấm &quot;Thêm mục&quot; hoặc thêm nhanh một trang bên
+          dưới.
+        </div>
+      )}
+
+      {menu.map((m, i) => (
+        <div className="link-row-admin" key={i}>
+          <div className="reorder">
+            <button className="btn btn-xs" onClick={() => move(i, i - 1)}>
+              ↑
+            </button>
+            <button className="btn btn-xs" onClick={() => move(i, i + 1)}>
+              ↓
+            </button>
+          </div>
+          <input
+            className="field-input"
+            placeholder="Nhãn (vd: About)"
+            value={m.label}
+            onChange={(e) => setItem(i, "label", e.target.value)}
+          />
+          <input
+            className="field-input"
+            placeholder="Link (vd: /about hoặc https://…)"
+            value={m.url}
+            onChange={(e) => setItem(i, "url", e.target.value)}
+          />
+          <button
+            className="btn btn-sm btn-danger"
+            onClick={() => remove(i)}
+          >
+            Xóa
+          </button>
+        </div>
+      ))}
+
+      {addablePages.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <label className="field-label">Thêm nhanh một trang vào menu</label>
+          <div className="field-hint" style={{ marginBottom: 6 }}>
+            Chọn trang đã tạo để thêm vào menu (có thể sửa nhãn sau).
+          </div>
+          <div className="quick-add-pages">
+            {addablePages.map((p) => (
+              <button
+                key={p.slug}
+                type="button"
+                className="btn btn-sm"
+                onClick={() =>
+                  add({ label: p.headerLabel || p.h1, url: `/${p.slug}` })
+                }
+              >
+                + {p.headerLabel || p.h1}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ marginTop: 18 }}>
+        <button className="btn btn-primary" onClick={save} disabled={busy}>
+          {busy ? "Đang lưu…" : "Lưu"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -1345,7 +1467,6 @@ function PagesTab({
             <th>Thứ tự</th>
             <th>Tiêu đề</th>
             <th>Slug</th>
-            <th>Footer</th>
             <th>Hiển thị</th>
             <th></th>
           </tr>
@@ -1363,7 +1484,6 @@ function PagesTab({
               </td>
               <td>{p.h1 || p.titleTag}</td>
               <td className="muted">/{p.slug}</td>
-              <td>{p.showInHeader ? "✓" : "—"}</td>
               <td>
                 <button
                   className={`pill ${p.visible ? "pill-on" : "pill-off"}`}
@@ -1402,7 +1522,7 @@ function PagesTab({
 export default function AdminApp() {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [tab, setTab] = useState<
-    "games" | "categories" | "pages" | "home" | "site" | "stats"
+    "games" | "categories" | "pages" | "menu" | "home" | "site" | "stats"
   >("games");
   const [toastMsg, setToastMsg] = useState("");
   const [confirmState, setConfirmState] = useState<{
@@ -1459,6 +1579,12 @@ export default function AdminApp() {
             Trang (Pages)
           </button>
           <button
+            className={tab === "menu" ? "active" : ""}
+            onClick={() => setTab("menu")}
+          >
+            Menu
+          </button>
+          <button
             className={tab === "home" ? "active" : ""}
             onClick={() => setTab("home")}
           >
@@ -1492,6 +1618,7 @@ export default function AdminApp() {
           {tab === "games" && <GamesTab toast={toast} confirm={confirm} />}
           {tab === "categories" && <CategoriesTab toast={toast} confirm={confirm} />}
           {tab === "pages" && <PagesTab toast={toast} confirm={confirm} />}
+          {tab === "menu" && <MenuTab toast={toast} />}
           {tab === "home" && <HomeTab toast={toast} />}
           {tab === "stats" && <StatsTab />}
           {tab === "site" && <SiteForm toast={toast} />}

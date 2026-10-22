@@ -651,6 +651,35 @@
   }
 }
 
+/* ---- Quản lý Menu (gần footer) ---- */
+.link-row-admin {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.link-row-admin .reorder {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.link-row-admin input {
+  flex: 1;
+}
+.quick-add-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .link-row-admin {
+    flex-wrap: wrap;
+  }
+  .link-row-admin input {
+    flex: 1 1 100%;
+  }
+}
+
 /* ---- Badge đếm số game trong bảng category ---- */
 .count-badge {
   display: inline-block;

@@ -10,6 +10,7 @@ import {
   CLEAN,
 } from "./db/models";
 import type { Category, Game, Page, SiteSettings, StatsSummary } from "./types";
+import { slugify } from "./slug";
 
 /* ===================== GAMES ===================== */
 
@@ -215,6 +216,20 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getVisibleCategories(): Promise<Category[]> {
   return (await getCategories()).filter((c) => c.visible !== false);
+}
+
+/** Tìm category hiển thị theo slug URL (vd "2-player" khớp label "2 Player"). */
+export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+  const cats = await getVisibleCategories();
+  return cats.find((c) => slugify(c.label) === slug) || null;
+}
+
+/** Tất cả game hiển thị thuộc 1 category (lọc theo label), sắp theo thứ tự. */
+export async function getGamesByCategory(label: string): Promise<Game[]> {
+  await dbConnect();
+  return GameModel.find({ visible: { $ne: false }, categories: label }, CLEAN)
+    .sort({ order: 1 })
+    .lean() as unknown as Game[];
 }
 
 export async function upsertCategory(cat: Category): Promise<void> {

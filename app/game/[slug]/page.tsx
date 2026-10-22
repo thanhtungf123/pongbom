@@ -4,7 +4,9 @@ import type { Metadata } from "next";
 import GamePlayer from "@/components/GamePlayer";
 import Track from "@/components/Track";
 import RateStars from "@/components/RateStars";
+import GameActions from "@/components/GameActions";
 import { getGame } from "@/lib/store";
+import { categoryPath } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
@@ -85,15 +87,7 @@ export default async function GamePage({
             />
           </div>
           <div className="game-page-social">
-            <button type="button" className="gp-embed-btn">
-              &lt;/&gt; Embed
-            </button>
-            <button type="button" className="gp-post-btn">
-              𝕏 Post
-            </button>
-            <button type="button" className="gp-share-btn">
-              ↗ Share
-            </button>
+            <GameActions slug={game.slug} title={game.title} />
           </div>
         </div>
 
@@ -114,7 +108,7 @@ export default async function GamePage({
           <ul className="gp-category-items">
             {game.categories.map((c) => (
               <li key={c}>
-                <Link href={`/?category=${encodeURIComponent(c)}`} title={`${c} Games`}>
+                <Link href={categoryPath(c)} title={`${c} Games`}>
                   <span className="icon">{CAT_EMOJI[c] ?? "🎲"}</span>
                   <span>{c}</span>
                 </Link>

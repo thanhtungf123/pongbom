@@ -59,7 +59,8 @@ export type SiteSettings = {
   faviconUrl?: string;
   footerHtml?: string; // (cũ, tương thích)
   footerText?: string;
-  footerLinks?: FooterLink[];
+  footerLinks?: FooterLink[]; // (cũ) link tùy chỉnh — giữ để tương thích
+  menuLinks?: FooterLink[]; // MENU các trang hiển thị gần footer (admin quản lý)
   homeSections?: HomeSection[]; // các khối category trên trang chủ
   homeContentHtml?: string; // nội dung (rich text) cuối trang chủ
 };

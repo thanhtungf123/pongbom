@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL("http://localhost:3000"),
     title: {
-      default: `${site.siteName} — Play Free Online Games`,
+      default: site.siteName,
       template: `%s - ${site.siteName}`,
     },
     description:

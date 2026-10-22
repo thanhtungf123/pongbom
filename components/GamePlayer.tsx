@@ -7,6 +7,7 @@ import { IFRAME_ALLOW } from "@/lib/types";
 export default function GamePlayer({ game }: { game: Game }) {
   const wrapperRef = useRef<HTMLDivElement>(null); // #game-container
   const [isFs, setIsFs] = useState(false);
+  const [lightsOff, setLightsOff] = useState(false); // "tắt đèn" làm tối trang
 
   // Bỏ "fullscreen" khỏi quyền iframe để game không tự vào fullscreen riêng.
   const iframeAllow = IFRAME_ALLOW.replace(/fullscreen;\s*/i, "");
@@ -35,6 +36,7 @@ export default function GamePlayer({ game }: { game: Game }) {
     }) | null;
     if (!el) return;
     lockScroll(true);
+    setLightsOff(false); // tránh xung đột lớp phủ tắt đèn với fullscreen
     setIsFs(true); // effect bên dưới sẽ đồng bộ kích thước theo viewport thật
     if (nativeFsSupported()) {
       try {
@@ -159,7 +161,15 @@ export default function GamePlayer({ game }: { game: Game }) {
   }, [isFs, exitFullscreen]);
 
   return (
-    <div className="game">
+    <div className={`game${lightsOff ? " lights-dim" : ""}`}>
+      {/* Lớp phủ tối khi "tắt đèn" — bấm vào để bật lại */}
+      {lightsOff && (
+        <div
+          className="lights-overlay"
+          onClick={() => setLightsOff(false)}
+          aria-hidden="true"
+        />
+      )}
       <div
         id="game-container"
         ref={wrapperRef}
@@ -199,7 +209,13 @@ export default function GamePlayer({ game }: { game: Game }) {
             <div className="title">{game.title}</div>
           </div>
           <div className="game-tools">
-            <a className="lights-on-off" aria-label="Turn on/off the lights">
+            <a
+              className={`lights-on-off${lightsOff ? " lights-off-active" : ""}`}
+              aria-label="Turn on/off the lights"
+              onClick={() => setLightsOff((v) => !v)}
+              role="button"
+              tabIndex={0}
+            >
               <span className="monochrome-lightbulb" />
             </a>
             <a

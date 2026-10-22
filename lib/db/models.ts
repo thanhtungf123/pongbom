@@ -60,6 +60,8 @@ const SiteSchema = new Schema(
     footerHtml: String, // (giữ để tương thích cũ)
     footerText: String,
     footerLinks: [{ label: String, url: String, _id: false }],
+    // Menu các trang (hiển thị gần footer) — admin quản lý riêng
+    menuLinks: [{ label: String, url: String, _id: false }],
     // Trang chủ do admin cấu hình
     homeSections: [
       {
