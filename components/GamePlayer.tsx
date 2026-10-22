@@ -42,15 +42,8 @@ export default function GamePlayer({ game }: { game: Game }) {
       try {
         if (el.requestFullscreen) await el.requestFullscreen();
         else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
-        try {
-          await (
-            screen.orientation as ScreenOrientation & {
-              lock?: (o: string) => Promise<void>;
-            }
-          )?.lock?.("landscape");
-        } catch {
-          /* trình duyệt không cho khóa xoay */
-        }
+        // KHÔNG ép khóa xoay ngang: game chơi được cả dọc lẫn ngang trên mobile,
+        // ép landscape gây khó chịu (theo góp ý khách). Giữ nguyên hướng hiện tại.
       } catch {
         /* fullscreen thật lỗi -> vẫn dùng pseudo (đã setIsFs) */
       }
@@ -66,11 +59,6 @@ export default function GamePlayer({ game }: { game: Game }) {
       if (doc.fullscreenElement && doc.exitFullscreen) await doc.exitFullscreen();
       else if (doc.webkitFullscreenElement && doc.webkitExitFullscreen)
         await doc.webkitExitFullscreen();
-    } catch {
-      /* ignore */
-    }
-    try {
-      (screen.orientation as ScreenOrientation & { unlock?: () => void })?.unlock?.();
     } catch {
       /* ignore */
     }
@@ -159,6 +147,41 @@ export default function GamePlayer({ game }: { game: Game }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [isFs, exitFullscreen]);
+
+  /*
+    FIX iOS Safari — chạm vào khung không resume game sau khi bị pause:
+    khi game bị pause (rời app/đổi tab/đổi hướng), Safari "quên" giao vùng chạm
+    cho iframe cross-origin, nên cú chạm "tap to resume" không tới được game.
+    Mỗi khi quay lại / đổi hướng / cuộn, buộc iframe vẽ lại (translateZ) để
+    Safari giao lại vùng chạm — áp dụng cho CẢ dọc, ngang lẫn fullscreen.
+  */
+  useEffect(() => {
+    const poke = () => {
+      const frame = document.getElementById("game-frame") as HTMLIFrameElement | null;
+      if (!frame) return;
+      const prev = frame.style.transform;
+      frame.style.transform = "translateZ(0)";
+      void frame.offsetHeight; // ép reflow
+      requestAnimationFrame(() => {
+        frame.style.transform = prev;
+      });
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") poke();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", poke);
+    window.addEventListener("pageshow", poke);
+    window.addEventListener("orientationchange", poke);
+    window.visualViewport?.addEventListener("resize", poke);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", poke);
+      window.removeEventListener("pageshow", poke);
+      window.removeEventListener("orientationchange", poke);
+      window.visualViewport?.removeEventListener("resize", poke);
+    };
+  }, []);
 
   return (
     <div className={`game${lightsOff ? " lights-dim" : ""}`}>

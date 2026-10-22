@@ -110,6 +110,10 @@
   height: 100% !important;
   display: block;
   border: 0;
+  /* iOS Safari: giữ iframe trên layer riêng + nhận chạm ổn định (fix tap-to-resume) */
+  touch-action: manipulation;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .game-bottom-bar {
   display: flex;
