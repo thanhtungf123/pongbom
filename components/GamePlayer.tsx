@@ -16,7 +16,8 @@ import { IFRAME_ALLOW } from "@/lib/types";
  *    nên hạn chế tối đa việc game bị pause.
  */
 export default function GamePlayer({ game }: { game: Game }) {
-  const wrapperRef = useRef<HTMLDivElement>(null); // #game-container
+  const wrapperRef = useRef<HTMLDivElement>(null); // #game-container (phủ kín viewport)
+  const screenRef = useRef<HTMLDivElement>(null); // .game-screen (phần được xoay)
   const trackedRef = useRef(false); // đã ghi nhận lượt chơi chưa (1 lần/trang)
   const [playing, setPlaying] = useState(false); // đang chơi (immersive) hay poster
   const [lightsOff, setLightsOff] = useState(false); // "tắt đèn" làm tối trang
@@ -133,11 +134,13 @@ export default function GamePlayer({ game }: { game: Game }) {
     thay vì 100dvh/100vw, vì iOS báo dvh/vw sai khi xoay -> vùng chạm iframe lệch.
   */
   useEffect(() => {
-    const el = wrapperRef.current;
-    if (!playing || !el) return;
+    const s = screenRef.current;
+    if (!playing || !s) return;
 
     // Chỉ xoay bằng CSS khi KHÔNG khóa xoay hệ thống được (iOS). Android dùng
     // screen.orientation.lock -> máy tự xoay, không cần CSS rotate.
+    // #game-container đã phủ kín viewport (CSS inset:0, nền đen); ở đây chỉ chỉnh
+    // riêng .game-screen (phủ hết container hoặc xoay 90°).
     const canNativeLock = nativeFsSupported();
 
     const sync = () => {
@@ -150,25 +153,27 @@ export default function GamePlayer({ game }: { game: Game }) {
         ((orientation === "landscape" && !deviceLandscape) ||
           (orientation === "portrait" && deviceLandscape));
 
-      el.style.position = "fixed";
-      el.style.transformOrigin = "top left";
+      s.style.position = "absolute";
+      s.style.transformOrigin = "top left";
+      s.style.right = "auto";
+      s.style.bottom = "auto";
 
       if (needRotate) {
-        // Hiển thị game XOAY 90° để đúng hướng ngay, người dùng xoay máy theo.
-        // Khung có kích thước hoán đổi (h x w) rồi rotate để phủ kín màn hình.
-        el.style.top = "0px";
-        el.style.left = "0px";
-        el.style.width = `${h}px`;
-        el.style.height = `${w}px`;
-        el.style.transform = `rotate(90deg) translateY(-${w}px)`;
+        // Game XOAY 90° phủ KÍN màn hình để đúng hướng ngay; người dùng xoay theo.
+        s.style.top = "0px";
+        s.style.left = "0px";
+        s.style.width = `${h}px`;
+        s.style.height = `${w}px`;
+        s.style.transform = `rotate(90deg) translateY(-${w}px)`;
       } else {
-        el.style.top = `${Math.round(vv?.offsetTop ?? 0)}px`;
-        el.style.left = `${Math.round(vv?.offsetLeft ?? 0)}px`;
-        el.style.width = `${w}px`;
-        el.style.height = `${h}px`;
-        el.style.transform = "";
+        // Phủ kín theo visualViewport (không xoay).
+        s.style.top = `${Math.round(vv?.offsetTop ?? 0)}px`;
+        s.style.left = `${Math.round(vv?.offsetLeft ?? 0)}px`;
+        s.style.width = `${w}px`;
+        s.style.height = `${h}px`;
+        s.style.transform = "";
       }
-      void el.offsetHeight;
+      void s.offsetHeight;
     };
 
     sync();
@@ -184,13 +189,15 @@ export default function GamePlayer({ game }: { game: Game }) {
       window.removeEventListener("orientationchange", sync);
       window.visualViewport?.removeEventListener("resize", sync);
       window.visualViewport?.removeEventListener("scroll", sync);
-      el.style.width = "";
-      el.style.height = "";
-      el.style.top = "";
-      el.style.left = "";
-      el.style.transform = "";
-      el.style.transformOrigin = "";
-      el.style.position = "";
+      s.style.width = "";
+      s.style.height = "";
+      s.style.top = "";
+      s.style.left = "";
+      s.style.right = "";
+      s.style.bottom = "";
+      s.style.transform = "";
+      s.style.transformOrigin = "";
+      s.style.position = "";
     };
   }, [playing, orientation, nativeFsSupported]);
 
@@ -222,7 +229,7 @@ export default function GamePlayer({ game }: { game: Game }) {
         ref={wrapperRef}
         className={playing ? "is-fs" : undefined}
       >
-        <div className="game-screen">
+        <div className="game-screen" ref={screenRef}>
           {playing ? (
             <iframe
               id="game-frame"

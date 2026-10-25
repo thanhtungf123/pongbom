@@ -177,20 +177,23 @@
   position: relative;
   z-index: 41;
 }
-/* Fullscreen (Android native + iOS pseudo) */
+/* Fullscreen (Android native + iOS pseudo).
+   #game-container phủ KÍN viewport (inset:0) & nền đen -> ẩn hẳn trang phía dưới.
+   Phần xoay/đo kích thước do JS áp lên .game-screen bên trong. */
 #game-container.is-fs {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw; /* fallback; JS sẽ override bằng px từ visualViewport */
-  height: 100dvh;
+  inset: 0;
+  width: auto;
+  height: auto;
   max-width: none !important;
   margin: 0;
   z-index: 9999;
   background: #000;
+  overflow: hidden;
 }
 #game-container.is-fs .game-screen {
-  height: 100% !important;
+  position: absolute;
+  inset: 0; /* mặc định phủ kín; JS sẽ override top/left/width/height khi cần */
   padding-bottom: 0 !important;
   border-radius: 0;
 }
