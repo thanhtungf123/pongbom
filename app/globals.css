@@ -114,6 +114,57 @@
 .game-bottom-bar {
   display: flex;
 }
+/* Poster: thumbnail + nút Let's Play (trước khi nạp game) */
+.play-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-color: #0b1020;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.play-poster::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+}
+.play-poster-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 30px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #9b5cff 0%, #6d28d9 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 10px 28px -6px rgba(109, 40, 217, 0.7);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.play-poster:hover .play-poster-btn,
+.play-poster:active .play-poster-btn {
+  transform: scale(1.05);
+  box-shadow: 0 14px 34px -6px rgba(109, 40, 217, 0.85);
+}
+.play-poster-btn svg {
+  width: 18px;
+  height: 18px;
+}
 /* "Tắt đèn": phủ tối toàn trang, nâng khung game lên trên lớp phủ */
 .lights-overlay {
   position: fixed;

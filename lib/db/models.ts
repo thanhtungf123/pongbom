@@ -19,6 +19,8 @@ const GameSchema = new Schema(
     ratingSum: { type: Number, default: 0 }, // tổng điểm người dùng đã chấm
     ratingCount: { type: Number, default: 0 }, // số lượt chấm
     plays: { type: Number, default: 0 },
+    orientation: { type: String, default: "auto" }, // auto | landscape | portrait
+
     isNew: Boolean,
     featured: Boolean,
     visible: { type: Boolean, default: true, index: true },

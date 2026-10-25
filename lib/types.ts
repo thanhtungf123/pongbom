@@ -19,6 +19,7 @@ export type Game = {
   ratingSum?: number; // tổng điểm người dùng đã chấm
   ratingCount?: number; // số lượt chấm
   plays: number;
+  orientation?: "auto" | "landscape" | "portrait"; // hướng ép khi chơi fullscreen
   isNew?: boolean;
   featured?: boolean;
   visible?: boolean; // cho phép hiển thị

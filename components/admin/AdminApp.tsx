@@ -320,6 +320,7 @@ function GameForm({
           categories: [],
           rating: 0, // tự động theo đánh giá của người dùng
           plays: 0, // tự động theo lượt chơi thật của người dùng
+          orientation: "auto",
           visible: true,
           robotsIndex: true,
           robotsFollow: true,
@@ -442,6 +443,21 @@ function GameForm({
           Tự động theo người dùng (chơi &amp; đánh giá) — admin không chỉnh.
         </span>
       </div>
+      <Field
+        label="Hướng chơi (fullscreen)"
+        hint="Khi bấm Let's Play, game hiển thị đúng hướng này: Android khóa xoay hệ thống; iPhone xoay khung game 90° để game ra đúng hướng ngay rồi người dùng xoay máy theo."
+      >
+        <select
+          className="field-input"
+          value={(d.orientation as string) || "auto"}
+          onChange={(e) => set("orientation", e.target.value)}
+        >
+          <option value="auto">Tự động (không khóa)</option>
+          <option value="landscape">Ngang (landscape)</option>
+          <option value="portrait">Dọc (portrait)</option>
+        </select>
+      </Field>
+
       <div className="check-row">
         <Check
           label="Gắn nhãn NEW"

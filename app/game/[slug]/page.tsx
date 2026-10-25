@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import GamePlayer from "@/components/GamePlayer";
-import Track from "@/components/Track";
 import RateStars from "@/components/RateStars";
 import GameActions from "@/components/GameActions";
 import { getGame } from "@/lib/store";
@@ -54,7 +53,8 @@ export default async function GamePage({
 
   return (
     <>
-      <Track type="play" slug={game.slug} />
+      {/* Lượt chơi được đếm khi người dùng bấm "Let's Play!" (trong GamePlayer),
+          không đếm lúc mở trang. */}
       {/* Khung game */}
       <div className="game-page-top">
         <div className="game-page-top-left">

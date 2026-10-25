@@ -4,13 +4,26 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Game } from "@/lib/types";
 import { IFRAME_ALLOW } from "@/lib/types";
 
+/**
+ * Luồng chơi game (theo yêu cầu):
+ *  - Mặc định hiện POSTER: thumbnail + nút "Let's Play!" (game CHƯA nạp).
+ *  - Bấm "Let's Play!" -> nạp iframe + vào IMMERSIVE (fullscreen).
+ *      + Android/iPad/desktop: fullscreen thật + khóa xoay hệ thống theo game.
+ *      + iPhone Safari: giả-fullscreen + XOAY khung game 90° (CSS) để game ra
+ *        đúng hướng ngay; người dùng xoay máy theo, khi khớp thì bỏ xoay.
+ *  - KHÔNG có nút thoát. Thoát fullscreen (nút back hệ thống) hoặc reload trang
+ *    -> quay về poster. Nhờ immersive, người dùng không chạm nhầm vùng ngoài
+ *    nên hạn chế tối đa việc game bị pause.
+ */
 export default function GamePlayer({ game }: { game: Game }) {
   const wrapperRef = useRef<HTMLDivElement>(null); // #game-container
-  const [isFs, setIsFs] = useState(false);
+  const trackedRef = useRef(false); // đã ghi nhận lượt chơi chưa (1 lần/trang)
+  const [playing, setPlaying] = useState(false); // đang chơi (immersive) hay poster
   const [lightsOff, setLightsOff] = useState(false); // "tắt đèn" làm tối trang
 
   // Bỏ "fullscreen" khỏi quyền iframe để game không tự vào fullscreen riêng.
   const iframeAllow = IFRAME_ALLOW.replace(/fullscreen;\s*/i, "");
+  const orientation = game.orientation || "auto";
 
   const nativeFsSupported = useCallback(() => {
     if (typeof document === "undefined") return false;
@@ -30,52 +43,81 @@ export default function GamePlayer({ game }: { game: Game }) {
     document.body.style.overflow = lock ? "hidden" : "";
   };
 
-  const enterFullscreen = useCallback(async () => {
+  // Bấm "Let's Play!": nạp game + vào immersive. PHẢI gọi requestFullscreen
+  // ngay trong cử chỉ bấm (không await trước đó) thì trình duyệt mới cho phép.
+  const startPlay = useCallback(() => {
+    setPlaying(true);
+    setLightsOff(false);
+    lockScroll(true);
+
+    // Ghi nhận lượt chơi THẬT (chỉ khi bấm Let's Play), 1 lần mỗi lần mở trang.
+    if (!trackedRef.current) {
+      trackedRef.current = true;
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "play", slug: game.slug }),
+      }).catch(() => {});
+    }
+
     const el = wrapperRef.current as (HTMLDivElement & {
       webkitRequestFullscreen?: () => Promise<void>;
     }) | null;
-    if (!el) return;
-    lockScroll(true);
-    setLightsOff(false); // tránh xung đột lớp phủ tắt đèn với fullscreen
-    setIsFs(true); // effect bên dưới sẽ đồng bộ kích thước theo viewport thật
-    if (nativeFsSupported()) {
-      try {
-        if (el.requestFullscreen) await el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
-        // KHÔNG ép khóa xoay ngang: game chơi được cả dọc lẫn ngang trên mobile,
-        // ép landscape gây khó chịu (theo góp ý khách). Giữ nguyên hướng hiện tại.
-      } catch {
-        /* fullscreen thật lỗi -> vẫn dùng pseudo (đã setIsFs) */
-      }
-    }
-  }, [nativeFsSupported]);
+    if (!el || !nativeFsSupported()) return; // iPhone: chỉ giả-fullscreen bằng CSS
 
-  const exitFullscreen = useCallback(async () => {
+    const req = el.requestFullscreen
+      ? el.requestFullscreen()
+      : el.webkitRequestFullscreen
+        ? el.webkitRequestFullscreen()
+        : null;
+    Promise.resolve(req)
+      .then(() => {
+        if (orientation === "auto") return;
+        return (
+          screen.orientation as ScreenOrientation & {
+            lock?: (o: string) => Promise<void>;
+          }
+        )?.lock?.(orientation);
+      })
+      .catch(() => {
+        /* không khóa xoay được -> bỏ qua, vẫn immersive */
+      });
+  }, [nativeFsSupported, orientation, game.slug]);
+
+  const stopPlay = useCallback(() => {
     const doc = document as Document & {
       webkitExitFullscreen?: () => Promise<void>;
       webkitFullscreenElement?: Element;
     };
     try {
-      if (doc.fullscreenElement && doc.exitFullscreen) await doc.exitFullscreen();
+      if (doc.fullscreenElement && doc.exitFullscreen) doc.exitFullscreen();
       else if (doc.webkitFullscreenElement && doc.webkitExitFullscreen)
-        await doc.webkitExitFullscreen();
+        doc.webkitExitFullscreen();
+    } catch {
+      /* ignore */
+    }
+    try {
+      (screen.orientation as ScreenOrientation & { unlock?: () => void })?.unlock?.();
     } catch {
       /* ignore */
     }
     lockScroll(false);
-    setIsFs(false);
+    setPlaying(false);
   }, []);
 
-  const toggleFullscreen = () => (isFs ? exitFullscreen() : enterFullscreen());
-
-  // Thoát fullscreen thật bằng back/Esc/cử chỉ
+  // Thoát fullscreen thật (nút back/Esc) -> quay về poster.
   useEffect(() => {
     const onFsChange = () => {
       const doc = document as Document & { webkitFullscreenElement?: Element };
       const active = Boolean(doc.fullscreenElement || doc.webkitFullscreenElement);
       if (!active && nativeFsSupported()) {
+        try {
+          (screen.orientation as ScreenOrientation & { unlock?: () => void })?.unlock?.();
+        } catch {
+          /* ignore */
+        }
         lockScroll(false);
-        setIsFs(false);
+        setPlaying(false);
       }
     };
     document.addEventListener("fullscreenchange", onFsChange);
@@ -87,35 +129,50 @@ export default function GamePlayer({ game }: { game: Game }) {
   }, [nativeFsSupported]);
 
   /*
-    QUAN TRỌNG (fix iOS): khi fullscreen, đồng bộ kích thước khung game THEO
-    visualViewport thật (px) thay vì 100dvh/100vw. Trên iOS, khi xoay ngang,
-    dvh/vw không cập nhật đúng -> vùng chạm của iframe lệch khỏi phần nhìn thấy,
-    nên chạm "Click to keep playing" không ăn. Đồng bộ lại mỗi lần resize/xoay
-    (kèm delay vì iOS báo innerHeight sai ngay sau orientationchange) khắc phục.
+    iOS (giả-fullscreen): đồng bộ kích thước khung THEO visualViewport thật (px)
+    thay vì 100dvh/100vw, vì iOS báo dvh/vw sai khi xoay -> vùng chạm iframe lệch.
   */
   useEffect(() => {
     const el = wrapperRef.current;
-    if (!isFs || !el) return;
+    if (!playing || !el) return;
+
+    // Chỉ xoay bằng CSS khi KHÔNG khóa xoay hệ thống được (iOS). Android dùng
+    // screen.orientation.lock -> máy tự xoay, không cần CSS rotate.
+    const canNativeLock = nativeFsSupported();
 
     const sync = () => {
       const vv = window.visualViewport;
       const w = Math.round(vv?.width ?? window.innerWidth);
       const h = Math.round(vv?.height ?? window.innerHeight);
-      el.style.width = `${w}px`;
-      el.style.height = `${h}px`;
-      el.style.top = `${Math.round(vv?.offsetTop ?? 0)}px`;
-      el.style.left = `${Math.round(vv?.offsetLeft ?? 0)}px`;
-      // ép reflow để iOS giao lại sự kiện chạm cho iframe sau khi xoay
+      const deviceLandscape = w >= h;
+      const needRotate =
+        !canNativeLock &&
+        ((orientation === "landscape" && !deviceLandscape) ||
+          (orientation === "portrait" && deviceLandscape));
+
+      el.style.position = "fixed";
+      el.style.transformOrigin = "top left";
+
+      if (needRotate) {
+        // Hiển thị game XOAY 90° để đúng hướng ngay, người dùng xoay máy theo.
+        // Khung có kích thước hoán đổi (h x w) rồi rotate để phủ kín màn hình.
+        el.style.top = "0px";
+        el.style.left = "0px";
+        el.style.width = `${h}px`;
+        el.style.height = `${w}px`;
+        el.style.transform = `rotate(90deg) translateY(-${w}px)`;
+      } else {
+        el.style.top = `${Math.round(vv?.offsetTop ?? 0)}px`;
+        el.style.left = `${Math.round(vv?.offsetLeft ?? 0)}px`;
+        el.style.width = `${w}px`;
+        el.style.height = `${h}px`;
+        el.style.transform = "";
+      }
       void el.offsetHeight;
     };
 
     sync();
-    // iOS trả kích thước sai ngay sau khi xoay -> đồng bộ lại sau vài nhịp
-    const timers = [
-      setTimeout(sync, 100),
-      setTimeout(sync, 350),
-      setTimeout(sync, 700),
-    ];
+    const timers = [setTimeout(sync, 100), setTimeout(sync, 350), setTimeout(sync, 700)];
     window.addEventListener("resize", sync);
     window.addEventListener("orientationchange", sync);
     window.visualViewport?.addEventListener("resize", sync);
@@ -127,30 +184,32 @@ export default function GamePlayer({ game }: { game: Game }) {
       window.removeEventListener("orientationchange", sync);
       window.visualViewport?.removeEventListener("resize", sync);
       window.visualViewport?.removeEventListener("scroll", sync);
-      // xóa style inline khi thoát fullscreen
       el.style.width = "";
       el.style.height = "";
       el.style.top = "";
       el.style.left = "";
+      el.style.transform = "";
+      el.style.transformOrigin = "";
+      el.style.position = "";
     };
-  }, [isFs]);
+  }, [playing, orientation, nativeFsSupported]);
 
   useEffect(() => () => {
     document.body.style.overflow = "";
   }, []);
 
+  // Esc -> thoát (desktop)
   useEffect(() => {
-    if (!isFs) return;
+    if (!playing) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") exitFullscreen();
+      if (e.key === "Escape") stopPlay();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isFs, exitFullscreen]);
+  }, [playing, stopPlay]);
 
   return (
     <div className={`game${lightsOff ? " lights-dim" : ""}`}>
-      {/* Lớp phủ tối khi "tắt đèn" — bấm vào để bật lại */}
       {lightsOff && (
         <div
           className="lights-overlay"
@@ -161,63 +220,75 @@ export default function GamePlayer({ game }: { game: Game }) {
       <div
         id="game-container"
         ref={wrapperRef}
-        className={isFs ? "is-fs" : undefined}
+        className={playing ? "is-fs" : undefined}
       >
-        {/* .game-screen: hộp tỉ lệ bằng padding-bottom (KHÔNG dùng aspect-ratio
-            để tránh bug lệch vùng chạm iframe trên iOS) */}
         <div className="game-screen">
-          <iframe
-            id="game-frame"
-            src={game.iframeUrl}
-            title={game.title}
-            allow={iframeAllow}
-          />
-
-          {isFs && (
-            <button className="fs-exit" onClick={exitFullscreen} aria-label="Exit fullscreen">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-              </svg>
-              Exit
+          {playing ? (
+            <iframe
+              id="game-frame"
+              src={game.iframeUrl}
+              title={game.title}
+              allow={iframeAllow}
+            />
+          ) : (
+            <button
+              type="button"
+              className="play-poster"
+              onClick={startPlay}
+              aria-label={`Chơi ${game.title}`}
+              style={
+                game.thumbnail
+                  ? { backgroundImage: `url(${game.thumbnail})` }
+                  : undefined
+              }
+            >
+              <span className="play-poster-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Let&apos;s Play!
+              </span>
             </button>
           )}
-
         </div>
 
-        <div className="game-bottom-bar">
-          <div className="game-details">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="image"
-              src={game.thumbnail}
-              height={38}
-              width={50}
-              alt={game.title}
-              title={game.title}
-            />
-            <div className="title">{game.title}</div>
+        {/* Thanh dưới chỉ hiện ở poster (khi chơi là immersive, không có thanh) */}
+        {!playing && (
+          <div className="game-bottom-bar">
+            <div className="game-details">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="image"
+                src={game.thumbnail}
+                height={38}
+                width={50}
+                alt={game.title}
+                title={game.title}
+              />
+              <div className="title">{game.title}</div>
+            </div>
+            <div className="game-tools">
+              <a
+                className={`lights-on-off${lightsOff ? " lights-off-active" : ""}`}
+                aria-label="Turn on/off the lights"
+                onClick={() => setLightsOff((v) => !v)}
+                role="button"
+                tabIndex={0}
+              >
+                <span className="monochrome-lightbulb" />
+              </a>
+              <a
+                className="game-full-screen"
+                aria-label="Chơi toàn màn hình"
+                onClick={startPlay}
+                role="button"
+                tabIndex={0}
+              >
+                <span className="monochrome-fullscreen" />
+              </a>
+            </div>
           </div>
-          <div className="game-tools">
-            <a
-              className={`lights-on-off${lightsOff ? " lights-off-active" : ""}`}
-              aria-label="Turn on/off the lights"
-              onClick={() => setLightsOff((v) => !v)}
-              role="button"
-              tabIndex={0}
-            >
-              <span className="monochrome-lightbulb" />
-            </a>
-            <a
-              className="game-full-screen"
-              aria-label="Switch to full-screen"
-              onClick={toggleFullscreen}
-              role="button"
-              tabIndex={0}
-            >
-              <span className="monochrome-fullscreen" />
-            </a>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
