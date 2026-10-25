@@ -4,27 +4,33 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 /**
- * Thanh loading mảnh ở TRÊN CÙNG (kiểu NProgress như twoplayergames): khi chuyển
- * trang, NỘI DUNG hiện tại VẪN GIỮ NGUYÊN, chỉ có thanh này chạy ở đỉnh trang.
- * Bắt đầu khi bấm link nội bộ / back-forward; chạy dần tới ~90%; hoàn tất khi
- * route mới render xong (pathname/searchParams đổi).
+ * Loading khi chuyển trang (kiểu NProgress): NỘI DUNG hiện tại VẪN GIỮ NGUYÊN,
+ * chỉ hiện thanh mảnh ở đỉnh + (nếu lâu) lớp phủ mờ + spinner giữa màn hình.
+ *
+ * - Bắt đầu khi bấm 1 link NỘI BỘ (forward). KHÔNG bắt đầu khi bấm Back/Forward
+ *   của trình duyệt (back thường lấy từ cache -> hiện loading sẽ gây kẹt/ảo).
+ * - Hoàn tất khi route mới đã render (pathname/searchParams đổi).
+ * - Có safety timeout để KHÔNG BAO GIỜ kẹt loading.
  */
 export default function TopProgress() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [width, setWidth] = useState(0);
   const [active, setActive] = useState(false);
-  const [overlay, setOverlay] = useState(false); // lớp phủ + spinner giữa màn hình
+  const [overlay, setOverlay] = useState(false);
   const activeRef = useRef(false);
   const creepRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const overlayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const clearCreep = () => {
-    if (creepRef.current) {
-      clearInterval(creepRef.current);
-      creepRef.current = null;
-    }
+  const clearTimers = () => {
+    if (creepRef.current) clearInterval(creepRef.current);
+    if (overlayRef.current) clearTimeout(overlayRef.current);
+    if (safetyRef.current) clearTimeout(safetyRef.current);
+    creepRef.current = null;
+    overlayRef.current = null;
+    safetyRef.current = null;
   };
 
   const start = () => {
@@ -36,7 +42,7 @@ export default function TopProgress() {
     }
     setActive(true);
     setWidth(8);
-    clearCreep();
+    clearTimers();
     creepRef.current = setInterval(() => {
       setWidth((w) => {
         if (w >= 90) return w;
@@ -44,19 +50,16 @@ export default function TopProgress() {
         return Math.min(90, w + inc);
       });
     }, 240);
-    // Chỉ hiện lớp phủ + spinner nếu chuyển trang lâu (>180ms) -> tránh nháy.
-    if (overlayRef.current) clearTimeout(overlayRef.current);
-    overlayRef.current = setTimeout(() => setOverlay(true), 180);
+    // Lớp phủ + spinner chỉ hiện nếu chuyển trang hơi lâu (>90ms) -> tránh nháy.
+    overlayRef.current = setTimeout(() => setOverlay(true), 90);
+    // An toàn: tự hoàn tất sau 15s nếu vì lý do nào đó không nhận tín hiệu xong.
+    safetyRef.current = setTimeout(() => done(), 15000);
   };
 
   const done = () => {
     if (!activeRef.current) return;
     activeRef.current = false;
-    clearCreep();
-    if (overlayRef.current) {
-      clearTimeout(overlayRef.current);
-      overlayRef.current = null;
-    }
+    clearTimers();
     setOverlay(false);
     setWidth(100);
     doneRef.current = setTimeout(() => {
@@ -65,7 +68,7 @@ export default function TopProgress() {
     }, 300);
   };
 
-  // Bắt đầu khi điều hướng nội bộ (click link / nút back-forward).
+  // Bắt đầu khi bấm link nội bộ (forward). KHÔNG bắt vào Back/Forward.
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       if (
@@ -99,13 +102,8 @@ export default function TopProgress() {
       }
       start();
     };
-    const onPop = () => start();
     document.addEventListener("click", onClick);
-    window.addEventListener("popstate", onPop);
-    return () => {
-      document.removeEventListener("click", onClick);
-      window.removeEventListener("popstate", onPop);
-    };
+    return () => document.removeEventListener("click", onClick);
   }, []);
 
   // Hoàn tất khi route mới đã render.
@@ -117,9 +115,8 @@ export default function TopProgress() {
   // Dọn timer khi unmount.
   useEffect(
     () => () => {
-      clearCreep();
+      clearTimers();
       if (doneRef.current) clearTimeout(doneRef.current);
-      if (overlayRef.current) clearTimeout(overlayRef.current);
     },
     []
   );
