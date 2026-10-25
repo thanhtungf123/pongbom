@@ -10,10 +10,15 @@ import { getSite } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
+// URL gốc của site (cho canonical + ảnh OG tuyệt đối). Đặt NEXT_PUBLIC_SITE_URL
+// trong .env khi deploy; mặc định dùng domain chính.
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://trochoi2nguoi.org";
+
 export async function generateMetadata(): Promise<Metadata> {
   const site = await getSite();
   return {
-    metadataBase: new URL("http://localhost:3000"),
+    metadataBase: new URL(SITE_URL),
     title: {
       // Trang chủ: tiêu đề riêng (có thể dài). Để trống -> dùng Tên website.
       default: site.homeTitle || site.siteName,
@@ -21,8 +26,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s - ${site.titleSuffix || site.siteName}`,
     },
     description:
-      "Play free online games directly in your browser — no download, no install.",
-    keywords: ["free online games", "browser games", "2 player games", "arcade"],
+      "Chơi game online miễn phí ngay trên trình duyệt — không cần tải, không cần cài đặt.",
+    keywords: ["game online", "game miễn phí", "game trình duyệt", "game 2 người", "trò chơi"],
+    alternates: { canonical: "/" },
     icons: site.faviconUrl ? { icon: site.faviconUrl } : undefined,
   };
 }
@@ -39,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <body>
         <Track type="view" />
         <div className="site-body">

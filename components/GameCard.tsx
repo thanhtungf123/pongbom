@@ -1,36 +1,56 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Game } from "@/lib/types";
 
 // Ô game — markup y hệt mirror: <li><a><div.image><img></div><div.title></a></li>
-// Nếu game có thumbnailVideo: rê chuột vào (PC) sẽ phát video xem trước.
-export default function GameCard({ game }: { game: Game }) {
-  const hasVideo = !!game.thumbnailVideo;
+// Video xem trước CHỈ bật trên thiết bị có hover thật (PC). Trên mobile không
+// hover nên bỏ hẳn video (tránh nạp video khi chạm -> gây lag lúc mở game).
+export default function GameCard({
+  game,
+  animate,
+}: {
+  game: Game;
+  animate?: boolean;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [canHover, setCanHover] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
+  useEffect(() => {
+    try {
+      setCanHover(
+        window.matchMedia("(hover: hover) and (pointer: fine)").matches
+      );
+    } catch {
+      setCanHover(false);
+    }
+  }, []);
+
+  const hasVideo = !!game.thumbnailVideo && canHover;
+
   const onEnter = () => {
-    if (!hasVideo) return;
     setShowVideo(true);
     const v = videoRef.current;
     if (v) {
-      // Nạp src trễ: chỉ gán khi cần để không tải video cho mọi ô.
-      if (!v.src) v.src = game.thumbnailVideo as string;
+      if (!v.src) v.src = game.thumbnailVideo as string; // nạp trễ
       v.currentTime = 0;
       v.play().catch(() => {});
     }
   };
 
   const onLeave = () => {
-    if (!hasVideo) return;
     setShowVideo(false);
     videoRef.current?.pause();
   };
 
   return (
-    <li onMouseEnter={onEnter} onMouseLeave={onLeave}>
+    <li
+      className={animate ? "card-animate-in" : undefined}
+      onMouseEnter={hasVideo ? onEnter : undefined}
+      onMouseLeave={hasVideo ? onLeave : undefined}
+    >
       <Link href={`/game/${game.slug}`} title={game.title}>
         {game.isNew && <span className="new-band">new</span>}
         <div className="image">

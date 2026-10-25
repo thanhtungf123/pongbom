@@ -49,7 +49,7 @@ export default function GameBox() {
           setOpen((o) => !o);
         }}
       >
-        My Game Box
+        Game của tôi
         <i className="con monochrome-inbox" />
         {items.length > 0 && <span className="game-box-badge">{items.length}</span>}
       </a>
@@ -58,7 +58,7 @@ export default function GameBox() {
         <div className="game-box-panel">
           {items.length === 0 ? (
             <div className="game-box-empty">
-              Chưa có game nào. Mở 1 game rồi bấm “Lưu vào My Game Box”.
+              Chưa có game nào. Mở 1 game rồi bấm “Lưu vào Game của tôi”.
             </div>
           ) : (
             <ul className="game-box-list">
@@ -76,7 +76,7 @@ export default function GameBox() {
                   <button
                     type="button"
                     className="game-box-remove"
-                    aria-label="Bỏ khỏi My Game Box"
+                    aria-label="Bỏ khỏi Game của tôi"
                     onClick={() => removeGameBox(g.slug)}
                   >
                     ✕

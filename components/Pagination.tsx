@@ -38,7 +38,7 @@ export default function Pagination({
   push(totalPages);
 
   return (
-    <nav className="pagination" aria-label="Pagination">
+    <nav className="pagination" aria-label="Phân trang">
       {page > 1 ? (
         <Link className="page-btn page-nav" href={href(page - 1)} rel="prev">
           <span className="cat-icon monochrome-chevron-left" />

@@ -66,6 +66,14 @@
     display: none !important;
   }
 
+  /* Mobile: dùng nút "Xem thêm" (load more), ẩn phân trang kiểu PC */
+  .load-more-wrap {
+    display: block !important;
+  }
+  .grid-pagination {
+    display: none !important;
+  }
+
   /* ===== Header mobile: logo + Go to Desktop ===== */
   .top-space {
     display: flex !important;

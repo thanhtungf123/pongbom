@@ -53,10 +53,10 @@ export default async function Header() {
                 name="q"
                 className="search-input"
                 type="text"
-                title="Game search"
-                placeholder="Search..."
+                title="Tìm game"
+                placeholder="Tìm kiếm..."
               />
-              <button className="search-button" type="submit" aria-label="Search">
+              <button className="search-button" type="submit" aria-label="Tìm kiếm">
                 <span className="monochrome-search" />
               </button>
             </div>

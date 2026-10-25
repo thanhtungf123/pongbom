@@ -11,6 +11,100 @@
   border-radius: 4px;
 }
 
+/* ---------- Loading page (PC + mobile) ---------- */
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 55vh;
+  color: #386a81;
+}
+.page-loading-spinner,
+.load-more-spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.12);
+  border-top-color: #e66062;
+  animation: pbspin 0.7s linear infinite;
+}
+.page-loading-spinner {
+  width: 44px;
+  height: 44px;
+  border-width: 4px;
+}
+.load-more-spinner {
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+  border-top-color: #fff;
+}
+.page-loading-text {
+  font-size: 15px;
+  font-weight: 700;
+}
+@keyframes pbspin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Load more (mobile) + animation game mới ---------- */
+.load-more-wrap {
+  display: none; /* PC ẩn, dùng phân trang; mobile hiện (responsive.css) */
+  text-align: center;
+  margin: 16px 0 6px;
+}
+.load-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 999px;
+  background: #e66062;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 16px -6px rgba(230, 96, 98, 0.7);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.load-more:hover {
+  background: #e13d40;
+  transform: translateY(-1px);
+}
+.load-more:disabled {
+  opacity: 0.75;
+  cursor: default;
+}
+.load-more-err {
+  display: block;
+  margin-top: 8px;
+  color: #c0392b;
+  font-size: 13px;
+}
+.card-animate-in {
+  animation: cardIn 0.4s ease both;
+}
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-animate-in {
+    animation: none;
+  }
+}
+
 /* ---------- Social links ở footer (icon, dưới menu) ---------- */
 .footer-social a {
   display: inline-flex;

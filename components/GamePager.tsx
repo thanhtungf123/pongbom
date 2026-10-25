@@ -34,7 +34,7 @@ export default function GamePager({
       </ul>
 
       {totalPages > 1 && (
-        <nav className="pagination" aria-label="Pagination">
+        <nav className="pagination" aria-label="Phân trang">
           <button
             className="page-btn page-nav"
             disabled={page <= 1}

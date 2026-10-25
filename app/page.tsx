@@ -1,6 +1,6 @@
 import GameCard from "@/components/GameCard";
+import GameGrid from "@/components/GameGrid";
 import GameHistory from "@/components/GameHistory";
-import Pagination from "@/components/Pagination";
 import { getSite, getSectionGames, getVisibleGamesPaged } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -20,23 +20,23 @@ export default async function HomePage({
   // Chưa cấu hình khối nào -> hiển thị mặc định "Top Games" như trước.
   if (sections.length === 0) {
     const { games, total } = await getVisibleGamesPaged(page, PAGE_SIZE);
-    const totalPages = Math.ceil(total / PAGE_SIZE);
     return (
       <>
         <div className="module-heading space-between">
           <div className="trending-title">
             <h1>
-              <span className="icon monochrome-hot" /> Top Games
+              <span className="icon monochrome-hot" /> Game nổi bật
             </h1>
           </div>
           <GameHistory />
         </div>
-        <ul className="game-list">
-          {games.map((game) => (
-            <GameCard key={game.slug} game={game} />
-          ))}
-        </ul>
-        <Pagination page={page} totalPages={totalPages} basePath="/" />
+        <GameGrid
+          initial={games}
+          total={total}
+          page={page}
+          pageSize={PAGE_SIZE}
+          basePath="/"
+        />
 
         {site.homeContentHtml && (
           <div

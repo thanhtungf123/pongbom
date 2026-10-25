@@ -49,7 +49,14 @@ ADMIN_SECRET=<chuỗi_ngẫu_nhiên>     # tạo bằng: openssl rand -hex 32
 # Cloudinary (upload ảnh — dùng UNSIGNED upload preset, KHÔNG dùng api secret)
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=de44lcbu1
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=pongbom
+
+# URL gốc của site — dùng cho thẻ <link rel="canonical"> và ảnh OG (SEO).
+# PHẢI là domain thật, có https, KHÔNG dấu "/" ở cuối. Là biến NEXT_PUBLIC_*
+# nên đổi là phải build lại. Nếu để trống, code mặc định dùng trochoi2nguoi.org.
+NEXT_PUBLIC_SITE_URL=https://trochoi2nguoi.org
 ```
+
+> **Canonical:** mỗi trang tự sinh `<link rel="canonical">` trỏ về `NEXT_PUBLIC_SITE_URL` + đường dẫn trang (vd `https://trochoi2nguoi.org/game/pongoal`). Sau khi deploy, mở xem nguồn 1 trang bất kỳ và kiểm tra thẻ canonical đúng domain thật (không phải localhost).
 
 **Cloudinary:** vào Dashboard → Settings → Upload → Upload presets → tạo preset
 **Unsigned** (ở đây tên là `pongbom`). `api_key`/`api_secret` KHÔNG dùng trong app.

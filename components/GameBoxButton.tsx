@@ -33,10 +33,10 @@ export default function GameBoxButton({ game }: { game: Game }) {
           thumbnail: game.thumbnail,
         })
       }
-      title={saved ? "Bỏ khỏi My Game Box" : "Lưu vào My Game Box"}
+      title={saved ? "Bỏ khỏi Game của tôi" : "Lưu vào Game của tôi"}
     >
       <i className={`con monochrome-inbox${saved ? "-in" : ""}`} />
-      <span>{saved ? "Đã lưu" : "Lưu vào My Game Box"}</span>
+      <span>{saved ? "Đã lưu" : "Lưu vào Game của tôi"}</span>
     </button>
   );
 }

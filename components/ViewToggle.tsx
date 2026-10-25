@@ -132,9 +132,9 @@ export default function ViewToggle() {
         )}
       </svg>
       <span>
-        {isDesktop ? "Go to" : "Go to"}
+        Xem bản
         <br />
-        {isDesktop ? "Mobile" : "Desktop"}
+        {isDesktop ? "Điện thoại" : "Máy tính"}
       </span>
     </button>
   );

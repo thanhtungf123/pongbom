@@ -282,7 +282,7 @@ export default function GamePlayer({ game }: { game: Game }) {
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                Let&apos;s Play!
+                Chơi ngay!
               </span>
             </button>
           )}
@@ -307,7 +307,7 @@ export default function GamePlayer({ game }: { game: Game }) {
               <GameBoxButton game={game} />
               <a
                 className={`lights-on-off${lightsOff ? " lights-off-active" : ""}`}
-                aria-label="Turn on/off the lights"
+                aria-label="Bật/tắt đèn"
                 onClick={() => setLightsOff((v) => !v)}
                 role="button"
                 tabIndex={0}

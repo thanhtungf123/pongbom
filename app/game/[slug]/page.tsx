@@ -27,6 +27,7 @@ export async function generateMetadata({
   return {
     title: game.titleTag || game.title,
     description: game.metaDescription || game.shortDescription,
+    alternates: { canonical: `/game/${slug}` },
     robots: {
       index: game.robotsIndex !== false,
       follow: game.robotsFollow !== false,
@@ -74,7 +75,7 @@ export default async function GamePage({
           <div className="module-heading space-between">
             <div className="trending-title">
               <h2>
-                <span className="icon monochrome-gamepad" /> You may also like
+                <span className="icon monochrome-gamepad" /> Có thể bạn cũng thích
               </h2>
             </div>
           </div>

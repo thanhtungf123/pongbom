@@ -58,7 +58,7 @@ export default function TopMenu({ categories }: { categories: Category[] }) {
     <div
       ref={menuRef}
       className="top-menu with-transition"
-      data-text-close="Close"
+      data-text-close="Đóng"
       style={height ? { height } : undefined}
     >
       <ul
@@ -81,7 +81,7 @@ export default function TopMenu({ categories }: { categories: Category[] }) {
             <span
               className={`cat-icon monochrome-plus-sign${open ? " open" : ""}`}
             />
-            <span className="cat-title">{open ? "Close" : "More"}</span>
+            <span className="cat-title">{open ? "Đóng" : "Thêm"}</span>
           </a>
         </li>
 

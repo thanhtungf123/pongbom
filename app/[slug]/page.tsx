@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import GameCard from "@/components/GameCard";
+import GameGrid from "@/components/GameGrid";
 import GameHistory from "@/components/GameHistory";
-import Pagination from "@/components/Pagination";
 import {
   getCategoryBySlug,
   getGamesByCategoryPaged,
@@ -29,16 +28,18 @@ export async function generateMetadata({
   const cat = await getCategoryBySlug(slug);
   if (cat) {
     return {
-      title: `${cat.label} Games`,
+      title: `Game ${cat.label}`,
       description: `Tổng hợp các game ${cat.label} chơi trực tiếp trên trình duyệt.`,
+      alternates: { canonical: `/${slug}` },
     };
   }
 
   const page = await getPage(slug);
-  if (!page) return { title: "Not found" };
+  if (!page) return { title: "Không tìm thấy" };
   return {
     title: page.titleTag || page.h1,
     description: page.metaDescription,
+    alternates: { canonical: `/${slug}` },
     robots: {
       index: page.robotsIndex !== false,
       follow: page.robotsFollow !== false,
@@ -67,7 +68,6 @@ export default async function DynamicPage({
       PAGE_SIZE,
       site.priorityCategories || []
     );
-    const totalPages = Math.ceil(total / PAGE_SIZE);
     return (
       <>
         <div className="module-heading space-between">
@@ -78,25 +78,21 @@ export default async function DynamicPage({
               ) : (
                 <span className="icon">{cat.icon || "🎲"}</span>
               )}{" "}
-              {cat.label} Games
+              Game {cat.label}
             </h1>
           </div>
           <GameHistory />
         </div>
 
         {games.length > 0 ? (
-          <>
-            <ul className="game-list">
-              {games.map((g) => (
-                <GameCard key={g.slug} game={g} />
-              ))}
-            </ul>
-            <Pagination
-              page={pageNum}
-              totalPages={totalPages}
-              basePath={categoryPath(cat.label)}
-            />
-          </>
+          <GameGrid
+            initial={games}
+            total={total}
+            page={pageNum}
+            pageSize={PAGE_SIZE}
+            basePath={categoryPath(cat.label)}
+            source={{ category: cat.label }}
+          />
         ) : (
           <p className="home-section-empty">
             Chưa có game nào trong danh mục {cat.label}.

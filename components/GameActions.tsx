@@ -63,10 +63,10 @@ export default function GameActions({
   return (
     <>
       <button type="button" className="gp-embed-btn" onClick={() => setShowEmbed(true)}>
-        &lt;/&gt; Embed
+        &lt;/&gt; Nhúng
       </button>
       <button type="button" className="gp-share-btn" onClick={share}>
-        ↗ Share
+        ↗ Chia sẻ
       </button>
 
       {showEmbed && (

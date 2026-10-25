@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import GameCard from "@/components/GameCard";
+import GameGrid from "@/components/GameGrid";
 import GameHistory from "@/components/GameHistory";
-import Pagination from "@/components/Pagination";
 import { searchGames } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +18,7 @@ export async function generateMetadata({
   const term = (q || "").trim();
   return {
     title: term ? `Tìm kiếm: ${term}` : "Tìm kiếm",
+    alternates: { canonical: "/search" },
     robots: { index: false, follow: true },
   };
 }
@@ -35,7 +35,6 @@ export default async function SearchPage({
   const { games, total } = term
     ? await searchGames(term, page, PAGE_SIZE)
     : { games: [], total: 0 };
-  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <>
@@ -58,19 +57,15 @@ export default async function SearchPage({
       {!term ? (
         <p className="home-section-empty">Nhập từ khóa để tìm game.</p>
       ) : games.length > 0 ? (
-        <>
-          <ul className="game-list">
-            {games.map((g) => (
-              <GameCard key={g.slug} game={g} />
-            ))}
-          </ul>
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            basePath="/search"
-            query={{ q: term }}
-          />
-        </>
+        <GameGrid
+          initial={games}
+          total={total}
+          page={page}
+          pageSize={PAGE_SIZE}
+          basePath="/search"
+          query={{ q: term }}
+          source={{ q: term }}
+        />
       ) : (
         <p className="home-section-empty">
           Không tìm thấy game nào khớp “{term}”. Thử từ khóa khác nhé.
