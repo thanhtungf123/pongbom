@@ -68,21 +68,6 @@ export default function GamePlayer({ game }: { game: Game }) {
 
   const toggleFullscreen = () => (isFs ? exitFullscreen() : enterFullscreen());
 
-  /*
-    Nút "Tải lại": với iframe game khác domain, trang cha KHÔNG thể resume
-    (Safari chặn focus cross-origin; bấm nút ngoài iframe còn làm game pause thêm).
-    Cách chắc chắn duy nhất để thoát màn pause là tải lại game (chơi lại từ đầu).
-  */
-  const reloadGame = useCallback(() => {
-    const frame = document.getElementById("game-frame") as HTMLIFrameElement | null;
-    if (!frame) return;
-    const url = game.iframeUrl;
-    frame.src = "about:blank";
-    requestAnimationFrame(() => {
-      frame.src = url;
-    });
-  }, [game.iframeUrl]);
-
   // Thoát fullscreen thật bằng back/Esc/cử chỉ
   useEffect(() => {
     const onFsChange = () => {
@@ -197,19 +182,6 @@ export default function GamePlayer({ game }: { game: Game }) {
             </button>
           )}
 
-          {/* Nút nhỏ: tải lại game nếu bị kẹt ở màn pause (Safari không resume được) */}
-          <button
-            type="button"
-            className="game-resume"
-            onClick={reloadGame}
-            aria-label="Tải lại game"
-            title="Game bị kẹt màn tạm dừng? Bấm để tải lại (chơi lại từ đầu)"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
-              <path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Tải lại
-          </button>
         </div>
 
         <div className="game-bottom-bar">

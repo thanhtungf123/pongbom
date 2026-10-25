@@ -171,42 +171,6 @@
   width: 18px;
   height: 18px;
 }
-/* Nút nhỏ "Tiếp tục" — resume thủ công khi game bị pause */
-.game-resume {
-  position: absolute;
-  z-index: 6;
-  left: 10px;
-  bottom: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  border: none;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font: inherit;
-  font-weight: 700;
-  font-size: 12px;
-  cursor: pointer;
-  opacity: 0.75;
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-}
-.game-resume:hover,
-.game-resume:active {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.72);
-}
-.game-resume svg {
-  width: 13px;
-  height: 13px;
-}
-/* Trong fullscreen: tránh tai thỏ / thanh home của điện thoại */
-#game-container.is-fs .game-resume {
-  left: calc(env(safe-area-inset-left, 0px) + 10px);
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
-}
 
 /* ===== Trang nhúng /embed/[slug] (phủ kín, chỉ còn game) ===== */
 .embed-root {
