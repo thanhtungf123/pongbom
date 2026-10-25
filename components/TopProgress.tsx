@@ -5,7 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 /**
  * Loading khi chuyển trang (kiểu NProgress): NỘI DUNG hiện tại VẪN GIỮ NGUYÊN,
- * chỉ hiện thanh mảnh ở đỉnh + (nếu lâu) lớp phủ mờ + spinner giữa màn hình.
+ * hiện NGAY thanh mảnh ở đỉnh + lớp phủ mờ + spinner giữa màn hình.
  *
  * - Bắt đầu khi bấm 1 link NỘI BỘ (forward). KHÔNG bắt đầu khi bấm Back/Forward
  *   của trình duyệt (back thường lấy từ cache -> hiện loading sẽ gây kẹt/ảo).
@@ -21,15 +21,12 @@ export default function TopProgress() {
   const activeRef = useRef(false);
   const creepRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const overlayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearTimers = () => {
     if (creepRef.current) clearInterval(creepRef.current);
-    if (overlayRef.current) clearTimeout(overlayRef.current);
     if (safetyRef.current) clearTimeout(safetyRef.current);
     creepRef.current = null;
-    overlayRef.current = null;
     safetyRef.current = null;
   };
 
@@ -42,6 +39,7 @@ export default function TopProgress() {
     }
     setActive(true);
     setWidth(8);
+    setOverlay(true); // hiện lớp phủ + spinner NGAY cùng thanh trên cùng
     clearTimers();
     creepRef.current = setInterval(() => {
       setWidth((w) => {
@@ -50,8 +48,6 @@ export default function TopProgress() {
         return Math.min(90, w + inc);
       });
     }, 240);
-    // Lớp phủ + spinner chỉ hiện nếu chuyển trang hơi lâu (>90ms) -> tránh nháy.
-    overlayRef.current = setTimeout(() => setOverlay(true), 90);
     // An toàn: tự hoàn tất sau 15s nếu vì lý do nào đó không nhận tín hiệu xong.
     safetyRef.current = setTimeout(() => done(), 15000);
   };
@@ -71,14 +67,9 @@ export default function TopProgress() {
   // Bắt đầu khi bấm link nội bộ (forward). KHÔNG bắt vào Back/Forward.
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (
-        e.defaultPrevented ||
-        e.button !== 0 ||
-        e.metaKey ||
-        e.ctrlKey ||
-        e.shiftKey ||
-        e.altKey
-      )
+      // Lưu ý: nghe ở CAPTURE phase để chạy TRƯỚC khi <Link> của React gọi
+      // preventDefault() (nếu check e.defaultPrevented ở bubble sẽ luôn bị bỏ qua).
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
         return;
       const a = (e.target as Element | null)?.closest?.("a");
       if (!a) return;
@@ -102,8 +93,8 @@ export default function TopProgress() {
       }
       start();
     };
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    document.addEventListener("click", onClick, true); // capture phase
+    return () => document.removeEventListener("click", onClick, true);
   }, []);
 
   // Hoàn tất khi route mới đã render.
