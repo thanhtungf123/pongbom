@@ -15,7 +15,12 @@
 }
 
 @media (max-width: 820px) {
-  /* ===== Bỏ layout desktop cứng (grid quảng cáo + min-width 980) ===== */
+  /* GIỮ NGUYÊN nền gốc của body (gradient cyan→xanh + ảnh cỏ). Chỉ bỏ layout
+     desktop cứng và chặn tràn ngang (nội dung không lòi ra ngoài viewport). */
+  html,
+  body {
+    overflow-x: hidden;
+  }
   body {
     display: block !important;
   }
@@ -53,6 +58,11 @@
 
   /* Khối "game liên quan" chỉ dành cho PC */
   .related-games {
+    display: none !important;
+  }
+
+  /* Các phần chỉ dành cho web PC (nút lưu game…) */
+  .pc-only {
     display: none !important;
   }
 
@@ -120,7 +130,8 @@
   /* ===== Lưới game 3 cột, tile trắng + tên dưới ===== */
   .game-list {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
+    /* minmax(0,1fr): cột KHÔNG nở theo nội dung -> không tràn ngang */
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     grid-auto-rows: auto !important;
     gap: 10px !important;
     margin: 0 12px !important;
@@ -137,6 +148,7 @@
   }
   .game-list li a {
     display: block;
+    width: 100% !important; /* bỏ width:120px của desktop -> ô vừa khít cột */
     text-decoration: none;
   }
   .game-list li .image {

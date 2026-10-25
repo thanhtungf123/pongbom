@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Game } from "@/lib/types";
 import { IFRAME_ALLOW } from "@/lib/types";
+import { pushHistory } from "@/lib/clientStore";
+import GameBoxButton from "@/components/GameBoxButton";
 
 /**
  * Luồng chơi game:
@@ -58,6 +60,12 @@ export default function GamePlayer({ game }: { game: Game }) {
   const loadGame = useCallback(() => {
     setPlaying(true);
     setLightsOff(false);
+    // Ghi vào lịch sử game đã chơi (localStorage, chỉ dùng cho web PC).
+    pushHistory({
+      slug: game.slug,
+      title: game.title,
+      thumbnail: game.thumbnail,
+    });
     if (!trackedRef.current) {
       trackedRef.current = true;
       fetch("/api/track", {
@@ -66,7 +74,7 @@ export default function GamePlayer({ game }: { game: Game }) {
         body: JSON.stringify({ type: "play", slug: game.slug }),
       }).catch(() => {});
     }
-  }, [game.slug]);
+  }, [game.slug, game.title, game.thumbnail]);
 
   // Vào immersive (fullscreen). PHẢI gọi trong cử chỉ bấm của người dùng.
   const enterImmersive = useCallback(() => {
@@ -296,6 +304,7 @@ export default function GamePlayer({ game }: { game: Game }) {
               <div className="title">{game.title}</div>
             </div>
             <div className="game-tools">
+              <GameBoxButton game={game} />
               <a
                 className={`lights-on-off${lightsOff ? " lights-off-active" : ""}`}
                 aria-label="Turn on/off the lights"

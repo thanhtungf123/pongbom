@@ -11,6 +11,275 @@
   border-radius: 4px;
 }
 
+/* ---------- Animation nhẹ cho thanh công cụ game ---------- */
+.gamebox-save {
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.gamebox-save:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 5px 14px -5px rgba(0, 0, 0, 0.35);
+}
+.gamebox-save:active {
+  transform: scale(0.95);
+}
+.gamebox-save .con {
+  transition: transform 0.15s ease;
+}
+.gamebox-save:hover .con {
+  transform: scale(1.18) rotate(-7deg);
+}
+/* Khi vừa lưu thành công -> nảy nhẹ 1 lần (class .saved được thêm vào) */
+.gamebox-save.saved {
+  animation: savePop 0.38s ease;
+}
+@keyframes savePop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.16);
+  }
+  70% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Icon đèn / fullscreen: phóng + đổi màu khi hover */
+.game-tools .lights-on-off,
+.game-tools .game-full-screen {
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+.game-tools .lights-on-off:hover,
+.game-tools .game-full-screen:hover {
+  transform: scale(1.22);
+  color: #e66062;
+}
+.game-tools .game-full-screen:active,
+.game-tools .lights-on-off:active {
+  transform: scale(0.9);
+}
+
+/* Nút "Let's Play!": nhấp nhẹ liên tục để bớt nhàm; dừng khi hover */
+.play-poster-btn {
+  animation: playPulse 2.2s ease-in-out infinite;
+}
+.play-poster:hover .play-poster-btn,
+.play-poster:active .play-poster-btn {
+  animation: none;
+}
+@keyframes playPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 10px 28px -6px rgba(109, 40, 217, 0.7);
+  }
+  50% {
+    transform: scale(1.055);
+    box-shadow: 0 16px 36px -4px rgba(109, 40, 217, 0.9);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .play-poster-btn,
+  .gamebox-save.saved {
+    animation: none;
+  }
+}
+
+/* ---------- My Game Box (header) + nút Save + Lịch sử + View toggle ---------- */
+.game-box {
+  position: relative;
+}
+.game-box-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e66062;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+}
+.game-box-panel,
+.gh-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 300px;
+  max-height: 380px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.35);
+  z-index: 10001;
+  padding: 8px;
+}
+.game-box-empty,
+.gh-empty {
+  padding: 16px 12px;
+  color: #777;
+  font-size: 13px;
+  text-align: center;
+}
+.gh-head {
+  padding: 6px 8px 8px;
+  font-weight: 800;
+  color: #386a81;
+  font-size: 14px;
+}
+.game-box-list,
+.gh-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.game-box-list li,
+.gh-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.game-box-item,
+.gh-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px;
+  border-radius: 8px;
+  color: #333 !important;
+  text-decoration: none;
+}
+.game-box-item:hover,
+.gh-item:hover {
+  background: #f1f5f9;
+}
+.game-box-item img,
+.gh-item img {
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.game-box-title,
+.gh-title {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.game-box-remove {
+  border: none;
+  background: transparent;
+  color: #999;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.game-box-remove:hover {
+  background: #fde8e8;
+  color: #e66062;
+}
+
+/* Nút lưu game — nằm trong thanh bar dưới khung game (.game-tools) */
+.game-bottom-bar .game-tools {
+  align-items: center;
+}
+.gamebox-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border: 1px solid #c0b798;
+  border-radius: 999px;
+  background: #e9e3d2;
+  color: rgba(0, 0, 0, 0.75);
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.gamebox-save:hover {
+  background: #ddd4bd;
+}
+.gamebox-save.saved {
+  background: #4caf50;
+  border-color: #4caf50;
+  color: #fff;
+}
+.gamebox-save .con {
+  font-size: 18px;
+}
+
+/* Lịch sử: icon + xem nhanh vài thumbnail */
+.gh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 10px;
+  color: #386a81;
+}
+.gh-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+.gh-btn .icon.monochrome-history {
+  font-size: 22px;
+}
+.gh-peek {
+  display: inline-flex;
+  gap: 3px;
+}
+.gh-peek img {
+  border-radius: 5px;
+  object-fit: cover;
+  border: 1px solid #fff;
+}
+
+/* Nút chuyển Mobile khi đang ở desktop-view (nổi góc trên-phải).
+   Ở desktop-view toàn trang bị thu nhỏ theo scale, nên nút cố tình to để sau
+   khi scale vẫn đủ lớn để bấm. */
+.view-toggle-float {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 10002;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: #fff;
+  border: 2px solid #8cc152;
+  border-radius: 14px;
+  padding: 9px 14px;
+  color: #333;
+  font-weight: 800;
+  font-size: 19px;
+  line-height: 1.1;
+  text-align: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+.view-toggle-float svg {
+  width: 26px;
+  height: 26px;
+}
+
 /* ---------- 1) Icon category trong trang chi tiết game ---------- */
 .gp-category-items li a .cat-icon {
   color: #386a81;

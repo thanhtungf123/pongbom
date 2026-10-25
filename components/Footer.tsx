@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getSite, getFooterPages } from "@/lib/store";
 
 export default async function Footer() {
@@ -41,9 +40,6 @@ export default async function Footer() {
         // tương thích dữ liệu cũ (footerHtml)
         <div dangerouslySetInnerHTML={{ __html: site.footerHtml || "" }} />
       )}
-      <div className="footer-admin">
-        <Link href="/admin">Admin</Link>
-      </div>
     </footer>
   );
 }

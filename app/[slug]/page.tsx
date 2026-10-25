@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import GameCard from "@/components/GameCard";
+import GameHistory from "@/components/GameHistory";
 import Pagination from "@/components/Pagination";
 import {
   getCategoryBySlug,
@@ -80,7 +81,7 @@ export default async function DynamicPage({
               {cat.label} Games
             </h1>
           </div>
-          <div className="game-history" />
+          <GameHistory />
         </div>
 
         {games.length > 0 ? (

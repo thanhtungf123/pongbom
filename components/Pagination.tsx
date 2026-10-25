@@ -8,14 +8,21 @@ export default function Pagination({
   page,
   totalPages,
   basePath,
+  query = {},
 }: {
   page: number;
   totalPages: number;
   basePath: string;
+  query?: Record<string, string>;
 }) {
   if (totalPages <= 1) return null;
 
-  const href = (p: number) => (p <= 1 ? basePath : `${basePath}?page=${p}`);
+  const href = (p: number) => {
+    const sp = new URLSearchParams(query);
+    if (p > 1) sp.set("page", String(p));
+    const qs = sp.toString();
+    return qs ? `${basePath}?${qs}` : basePath;
+  };
 
   // Dải số trang gọn: luôn có 1 và cuối, cùng ±1 quanh trang hiện tại.
   const nums: (number | "…")[] = [];

@@ -1,4 +1,5 @@
 import GameCard from "@/components/GameCard";
+import GameHistory from "@/components/GameHistory";
 import Pagination from "@/components/Pagination";
 import { getSite, getSectionGames, getVisibleGamesPaged } from "@/lib/store";
 
@@ -28,7 +29,7 @@ export default async function HomePage({
               <span className="icon monochrome-hot" /> Top Games
             </h1>
           </div>
-          <div className="game-history" />
+          <GameHistory />
         </div>
         <ul className="game-list">
           {games.map((game) => (
@@ -84,6 +85,7 @@ export default async function HomePage({
                 </h2>
               )}
             </div>
+            {i === 0 && <GameHistory />}
           </div>
           <ul className="game-list">
             {lists[i].length > 0 ? (

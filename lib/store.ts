@@ -79,6 +79,36 @@ export async function getVisibleGamesPaged(
   return { games: await markNew(games), total };
 }
 
+/**
+ * Tìm game theo từ khóa (title / mô tả ngắn / category), phân trang.
+ * Khớp không phân biệt hoa thường; sắp theo lượt chơi (phổ biến lên trước).
+ */
+export async function searchGames(
+  q: string,
+  page: number,
+  pageSize: number
+): Promise<{ games: Game[]; total: number }> {
+  await dbConnect();
+  const term = (q || "").trim();
+  if (!term) return { games: [], total: 0 };
+  const safe = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex
+  const rx = new RegExp(safe, "i");
+  const filter = {
+    visible: { $ne: false },
+    $or: [{ title: rx }, { shortDescription: rx }, { categories: rx }],
+  };
+  const p = Math.max(1, Math.floor(page) || 1);
+  const [games, total] = await Promise.all([
+    GameModel.find(filter, CLEAN)
+      .sort({ plays: -1 })
+      .skip((p - 1) * pageSize)
+      .limit(pageSize)
+      .lean() as unknown as Promise<Game[]>,
+    GameModel.countDocuments(filter),
+  ]);
+  return { games: await markNew(games), total };
+}
+
 /** Game mới nhất (theo thời điểm tạo) — dùng cho trang 404. */
 export async function getNewestGames(limit = 105): Promise<Game[]> {
   await dbConnect();

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import GoToDesktop from "@/components/GoToDesktop";
+import ViewToggle from "@/components/ViewToggle";
+import GameBox from "@/components/GameBox";
 import TopMenu from "@/components/TopMenu";
 import { getSite, getVisibleCategories } from "@/lib/store";
 
@@ -36,14 +37,11 @@ export default async function Header() {
         </div>
 
         <div className="top-game-box">
-          <a href="#" className="game-box-btn" draggable={false}>
-            My Game Box
-            <i className="con monochrome-inbox" />
-          </a>
+          <GameBox />
         </div>
 
         <div className="top-search">
-          <form action="/">
+          <form action="/search">
             <div className="top-search-input-container">
               <input
                 name="q"
@@ -59,7 +57,7 @@ export default async function Header() {
           </form>
         </div>
 
-        <GoToDesktop />
+        <ViewToggle />
       </div>
 
       <div className="site-top-container">
