@@ -11,38 +11,64 @@
   border-radius: 4px;
 }
 
-/* ---------- Loading page (PC + mobile) ---------- */
-.page-loading {
+/* ---------- Thanh loading trên cùng (kiểu NProgress) ----------
+   Khi chuyển trang, nội dung hiện tại GIỮ NGUYÊN, chỉ thanh này chạy ở đỉnh. */
+.top-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 100000;
+  pointer-events: none;
+}
+.top-progress-bar {
+  height: 100%;
+  background: #e66062;
+  box-shadow: 0 0 10px #e66062, 0 0 6px #e66062;
+  border-radius: 0 2px 2px 0;
+  transition: width 0.24s ease, opacity 0.3s ease;
+}
+
+/* Lớp phủ mờ + spinner giữa màn hình — NỘI DUNG trang vẫn hiện dưới lớp phủ. */
+.nav-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  min-height: 55vh;
-  color: #386a81;
+  background: rgba(255, 255, 255, 0.45);
+  animation: navLoadingIn 0.15s ease;
 }
-.page-loading-spinner,
-.load-more-spinner {
-  display: inline-block;
+.nav-loading-spinner {
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
-  border: 3px solid rgba(0, 0, 0, 0.12);
+  border: 5px solid rgba(0, 0, 0, 0.14);
   border-top-color: #e66062;
   animation: pbspin 0.7s linear infinite;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
-.page-loading-spinner {
-  width: 44px;
-  height: 44px;
-  border-width: 4px;
+@keyframes navLoadingIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
+
+/* Spinner nhỏ trong nút "Xem thêm" */
 .load-more-spinner {
+  display: inline-block;
   width: 16px;
   height: 16px;
   vertical-align: -3px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.4);
   border-top-color: #fff;
-}
-.page-loading-text {
-  font-size: 15px;
-  font-weight: 700;
+  animation: pbspin 0.7s linear infinite;
 }
 @keyframes pbspin {
   to {

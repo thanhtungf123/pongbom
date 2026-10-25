@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import "./ui/site.css"; // CSS giao diện gốc (mirror) — nạp sau để thắng Tailwind
 import "./ui/custom.css"; // CSS tính năng mới (video hover, related, phân trang, 404)
@@ -6,6 +7,7 @@ import "./ui/responsive.css"; // Responsive mobile tự viết — nạp sau cù
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Track from "@/components/Track";
+import TopProgress from "@/components/TopProgress";
 import { getSite } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +49,9 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body>
+        <Suspense fallback={null}>
+          <TopProgress />
+        </Suspense>
         <Track type="view" />
         <div className="site-body">
           <div className="site-left">
