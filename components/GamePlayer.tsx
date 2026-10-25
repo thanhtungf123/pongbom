@@ -69,25 +69,19 @@ export default function GamePlayer({ game }: { game: Game }) {
   const toggleFullscreen = () => (isFs ? exitFullscreen() : enterFullscreen());
 
   /*
-    Nút "Tiếp tục": trường hợp game bị pause mà chạm vào khung không resume
-    (hay gặp trên iOS Safari với iframe cross-origin). Bấm nút sẽ trả focus cho
-    game + buộc iframe vẽ lại -> game nhận lại tương tác và chạy tiếp.
+    Nút "Tải lại": với iframe game khác domain, trang cha KHÔNG thể resume
+    (Safari chặn focus cross-origin; bấm nút ngoài iframe còn làm game pause thêm).
+    Cách chắc chắn duy nhất để thoát màn pause là tải lại game (chơi lại từ đầu).
   */
-  const resumeGame = useCallback(() => {
+  const reloadGame = useCallback(() => {
     const frame = document.getElementById("game-frame") as HTMLIFrameElement | null;
     if (!frame) return;
-    try {
-      frame.contentWindow?.focus();
-    } catch {
-      /* cross-origin focus bị chặn -> bỏ qua */
-    }
-    const prev = frame.style.transform;
-    frame.style.transform = "translateZ(0)";
-    void frame.offsetHeight; // ép reflow để Safari giao lại vùng chạm
+    const url = game.iframeUrl;
+    frame.src = "about:blank";
     requestAnimationFrame(() => {
-      frame.style.transform = prev;
+      frame.src = url;
     });
-  }, []);
+  }, [game.iframeUrl]);
 
   // Thoát fullscreen thật bằng back/Esc/cử chỉ
   useEffect(() => {
@@ -169,41 +163,6 @@ export default function GamePlayer({ game }: { game: Game }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [isFs, exitFullscreen]);
 
-  /*
-    FIX iOS Safari — chạm vào khung không resume game sau khi bị pause:
-    khi game bị pause (rời app/đổi tab/đổi hướng), Safari "quên" giao vùng chạm
-    cho iframe cross-origin, nên cú chạm "tap to resume" không tới được game.
-    Mỗi khi quay lại / đổi hướng / cuộn, buộc iframe vẽ lại (translateZ) để
-    Safari giao lại vùng chạm — áp dụng cho CẢ dọc, ngang lẫn fullscreen.
-  */
-  useEffect(() => {
-    const poke = () => {
-      const frame = document.getElementById("game-frame") as HTMLIFrameElement | null;
-      if (!frame) return;
-      const prev = frame.style.transform;
-      frame.style.transform = "translateZ(0)";
-      void frame.offsetHeight; // ép reflow
-      requestAnimationFrame(() => {
-        frame.style.transform = prev;
-      });
-    };
-    const onVisible = () => {
-      if (document.visibilityState === "visible") poke();
-    };
-    document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("focus", poke);
-    window.addEventListener("pageshow", poke);
-    window.addEventListener("orientationchange", poke);
-    window.visualViewport?.addEventListener("resize", poke);
-    return () => {
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("focus", poke);
-      window.removeEventListener("pageshow", poke);
-      window.removeEventListener("orientationchange", poke);
-      window.visualViewport?.removeEventListener("resize", poke);
-    };
-  }, []);
-
   return (
     <div className={`game${lightsOff ? " lights-dim" : ""}`}>
       {/* Lớp phủ tối khi "tắt đèn" — bấm vào để bật lại */}
@@ -238,18 +197,18 @@ export default function GamePlayer({ game }: { game: Game }) {
             </button>
           )}
 
-          {/* Nút nhỏ: bấm để tiếp tục nếu game bị dừng (chạm vào khung không ăn) */}
+          {/* Nút nhỏ: tải lại game nếu bị kẹt ở màn pause (Safari không resume được) */}
           <button
             type="button"
             className="game-resume"
-            onClick={resumeGame}
-            aria-label="Tiếp tục game"
-            title="Bấm để tiếp tục nếu game bị tạm dừng"
+            onClick={reloadGame}
+            aria-label="Tải lại game"
+            title="Game bị kẹt màn tạm dừng? Bấm để tải lại (chơi lại từ đầu)"
           >
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M8 5v14l11-7z" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 3-6.7M3 4v4h4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Tiếp tục
+            Tải lại
           </button>
         </div>
 
