@@ -68,6 +68,27 @@ export default function GamePlayer({ game }: { game: Game }) {
 
   const toggleFullscreen = () => (isFs ? exitFullscreen() : enterFullscreen());
 
+  /*
+    Nút "Tiếp tục": trường hợp game bị pause mà chạm vào khung không resume
+    (hay gặp trên iOS Safari với iframe cross-origin). Bấm nút sẽ trả focus cho
+    game + buộc iframe vẽ lại -> game nhận lại tương tác và chạy tiếp.
+  */
+  const resumeGame = useCallback(() => {
+    const frame = document.getElementById("game-frame") as HTMLIFrameElement | null;
+    if (!frame) return;
+    try {
+      frame.contentWindow?.focus();
+    } catch {
+      /* cross-origin focus bị chặn -> bỏ qua */
+    }
+    const prev = frame.style.transform;
+    frame.style.transform = "translateZ(0)";
+    void frame.offsetHeight; // ép reflow để Safari giao lại vùng chạm
+    requestAnimationFrame(() => {
+      frame.style.transform = prev;
+    });
+  }, []);
+
   // Thoát fullscreen thật bằng back/Esc/cử chỉ
   useEffect(() => {
     const onFsChange = () => {
@@ -216,6 +237,20 @@ export default function GamePlayer({ game }: { game: Game }) {
               Exit
             </button>
           )}
+
+          {/* Nút nhỏ: bấm để tiếp tục nếu game bị dừng (chạm vào khung không ăn) */}
+          <button
+            type="button"
+            className="game-resume"
+            onClick={resumeGame}
+            aria-label="Tiếp tục game"
+            title="Bấm để tiếp tục nếu game bị tạm dừng"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Tiếp tục
+          </button>
         </div>
 
         <div className="game-bottom-bar">
