@@ -90,7 +90,8 @@
 }
 
 /* ---------- My Game Box (header) + nút Save + Lịch sử + View toggle ---------- */
-.game-box {
+.game-box,
+.gh {
   position: relative;
 }
 .game-box-badge {
