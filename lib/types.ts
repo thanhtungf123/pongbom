@@ -46,6 +46,9 @@ export type Page = {
 
 export type FooterLink = { label: string; url: string };
 
+// Liên kết mạng xã hội ở footer. icon = key nền tảng (facebook, youtube…) hoặc URL ảnh.
+export type SocialLink = { url: string; icon: string };
+
 // Một khối (section) trên trang chủ do admin tự cấu hình.
 export type HomeSection = {
   title: string; // tiêu đề admin tự nhập, vd "Top 2 Player Games"
@@ -65,6 +68,7 @@ export type SiteSettings = {
   footerText?: string;
   footerLinks?: FooterLink[]; // (cũ) link tùy chỉnh — giữ để tương thích
   menuLinks?: FooterLink[]; // MENU các trang hiển thị gần footer (admin quản lý)
+  socialLinks?: SocialLink[]; // liên kết mạng xã hội (icon), hiển thị dưới menu footer
   homeSections?: HomeSection[]; // các khối category trên trang chủ
   homeContentHtml?: string; // nội dung (rich text) cuối trang chủ
   priorityCategories?: string[]; // label các category được ưu tiên nổi đầu mọi trang danh mục

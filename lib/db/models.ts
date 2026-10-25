@@ -67,6 +67,8 @@ const SiteSchema = new Schema(
     footerLinks: [{ label: String, url: String, _id: false }],
     // Menu các trang (hiển thị gần footer) — admin quản lý riêng
     menuLinks: [{ label: String, url: String, _id: false }],
+    // Liên kết mạng xã hội (icon) — hiển thị dưới menu footer
+    socialLinks: [{ url: String, icon: String, _id: false }],
     // Trang chủ do admin cấu hình
     homeSections: [
       {

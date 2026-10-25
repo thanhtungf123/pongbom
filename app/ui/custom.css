@@ -11,6 +11,37 @@
   border-radius: 4px;
 }
 
+/* ---------- Social links ở footer (icon, dưới menu) ---------- */
+.footer-social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background: hsla(0, 0%, 100%, 0.65);
+  color: #2f6b1e;
+  opacity: 1;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.footer-social a:hover {
+  transform: translateY(-2px) scale(1.08);
+  background: #528532;
+  color: #fff;
+}
+.footer-social svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+.footer-social img {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: block;
+}
+
 /* ---------- Animation nhẹ cho thanh công cụ game ---------- */
 .gamebox-save {
   transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease,

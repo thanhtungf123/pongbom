@@ -8,12 +8,15 @@ import type {
   HomeSection,
   Page,
   SiteSettings,
+  SocialLink,
   StatsSummary,
 } from "@/lib/types";
 import RichText from "./RichText";
 import ImageUpload from "./ImageUpload";
+import SocialIcon from "@/components/SocialIcon";
 import { categoryPath } from "@/lib/slug";
 import { CATEGORY_ICONS } from "@/lib/icons";
+import { SOCIAL_ICONS, SOCIAL_KEYS } from "@/lib/socialIcons";
 
 /* ----------------------------- helpers ----------------------------- */
 
@@ -610,6 +613,78 @@ function PageForm({
   );
 }
 
+/* --------------------- Social links editor (footer) --------------------- */
+
+function SocialLinksEditor({
+  value,
+  onChange,
+}: {
+  value: SocialLink[];
+  onChange: (v: SocialLink[]) => void;
+}) {
+  const list = value || [];
+  const set = (i: number, patch: Partial<SocialLink>) =>
+    onChange(list.map((s, x) => (x === i ? { ...s, ...patch } : s)));
+  const add = () => onChange([...list, { url: "", icon: "facebook" }]);
+  const remove = (i: number) => onChange(list.filter((_, x) => x !== i));
+  const isUrl = (v: string) => /^https?:\/\//i.test(v);
+
+  return (
+    <div className="social-editor">
+      {list.length === 0 && (
+        <p className="field-hint">Chưa có liên kết nào. Bấm “+ Thêm liên kết”.</p>
+      )}
+      {list.map((s, i) => (
+        <div className="social-row" key={i}>
+          <span className="social-preview">
+            <SocialIcon icon={s.icon} />
+          </span>
+          <div className="social-row-main">
+            {/* Chọn nền tảng có sẵn */}
+            <div className="social-pick">
+              {SOCIAL_KEYS.map((k) => (
+                <button
+                  type="button"
+                  key={k}
+                  className={`social-pick-btn${s.icon === k ? " on" : ""}`}
+                  title={SOCIAL_ICONS[k].label}
+                  onClick={() => set(i, { icon: k })}
+                >
+                  <SocialIcon icon={k} />
+                </button>
+              ))}
+            </div>
+            <input
+              className="field-input"
+              placeholder="URL liên kết, vd https://facebook.com/trang-cua-ban"
+              value={s.url}
+              onChange={(e) => set(i, { url: e.target.value })}
+            />
+            <input
+              className="field-input"
+              placeholder="hoặc dán URL ảnh icon tùy chỉnh (png/svg)…"
+              value={isUrl(s.icon) ? s.icon : ""}
+              onChange={(e) =>
+                set(i, { icon: e.target.value || "facebook" })
+              }
+            />
+          </div>
+          <button
+            type="button"
+            className="btn btn-sm btn-danger"
+            onClick={() => remove(i)}
+          >
+            Xóa
+          </button>
+        </div>
+      ))}
+      <button type="button" className="btn btn-sm" onClick={add}>
+        + Thêm liên kết
+      </button>
+    </div>
+  );
+}
+
 /* ----------------------------- Site form ----------------------------- */
 
 function SiteForm({ toast }: { toast: (m: string) => void }) {
@@ -757,6 +832,15 @@ function SiteForm({ toast }: { toast: (m: string) => void }) {
             Các liên kết menu (Home, About…) hiển thị gần footer giờ quản lý ở tab{" "}
             <b>Menu</b> riêng.
           </p>
+          <Field
+            label="Liên kết mạng xã hội"
+            hint="Hiển thị dạng icon DƯỚI menu ở footer (Facebook, YouTube, Instagram…). Chọn 1 icon có sẵn hoặc dán URL ảnh icon riêng, kèm URL liên kết."
+          >
+            <SocialLinksEditor
+              value={(d.socialLinks as SocialLink[]) || []}
+              onChange={(v) => set("socialLinks", v)}
+            />
+          </Field>
         </>
       )}
     </div>

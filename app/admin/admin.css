@@ -200,6 +200,74 @@
   color: #fff;
 }
 
+/* Social links editor (footer) */
+.social-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.social-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+.social-preview {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #386a81;
+  flex-shrink: 0;
+}
+.social-preview svg,
+.social-preview img {
+  width: 24px;
+  height: 24px;
+}
+.social-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.social-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.social-pick-btn {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+}
+.social-pick-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.social-pick-btn:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+.social-pick-btn.on {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+}
+
 /* Error list */
 .err-list {
   margin: 0;
