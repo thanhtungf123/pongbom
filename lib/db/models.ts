@@ -61,6 +61,8 @@ const SiteSchema = new Schema(
     titleSuffix: String,
     brandText: String,
     logoUrl: String,
+    logoWidth: Number,
+    logoHeight: Number,
     faviconUrl: String,
     footerHtml: String, // (giữ để tương thích cũ)
     footerText: String,

@@ -85,6 +85,12 @@
     height: 52px !important;
     gap: 6px;
   }
+  /* Logo ảnh: cap kích thước ở mobile để kích thước admin đặt (cho desktop)
+     không làm header mobile bị quá to. */
+  .logo img {
+    max-height: 48px !important;
+    width: auto !important;
+  }
   .logo .brand-faces {
     font-size: 22px !important;
   }

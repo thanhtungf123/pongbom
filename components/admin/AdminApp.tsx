@@ -782,6 +782,34 @@ function SiteForm({ toast }: { toast: (m: string) => void }) {
             />
           </Field>
           <ImageUpload label="Logo (ảnh)" value={d.logoUrl || ""} onChange={(v) => set("logoUrl", v)} />
+          <Field
+            label="Kích thước logo (px)"
+            hint="Để trống = tự động (mặc định cao 78px). Nhập 1 trong 2 để phóng to; nhập cả hai sẽ cố định khung (có thể méo). Chỉ nhập 1 số (vd chiều cao) là ảnh tự co theo tỉ lệ."
+          >
+            <div className="logo-size-row">
+              <input
+                type="number"
+                min={0}
+                className="field-input"
+                placeholder="Rộng (auto)"
+                value={(d.logoWidth as number) ?? ""}
+                onChange={(e) =>
+                  set("logoWidth", e.target.value ? Number(e.target.value) : undefined)
+                }
+              />
+              <span className="logo-size-x">×</span>
+              <input
+                type="number"
+                min={0}
+                className="field-input"
+                placeholder="Cao (auto)"
+                value={(d.logoHeight as number) ?? ""}
+                onChange={(e) =>
+                  set("logoHeight", e.target.value ? Number(e.target.value) : undefined)
+                }
+              />
+            </div>
+          </Field>
           <ImageUpload label="Favicon" value={d.faviconUrl || ""} onChange={(v) => set("faviconUrl", v)} />
           <Field
             label="Category ưu tiên"

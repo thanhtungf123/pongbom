@@ -21,7 +21,13 @@ export default async function Header() {
               <img
                 src={site.logoUrl}
                 alt={site.siteName}
-                style={{ maxHeight: 78, width: "auto" }}
+                style={{
+                  width: site.logoWidth ? `${site.logoWidth}px` : "auto",
+                  height: site.logoHeight ? `${site.logoHeight}px` : "auto",
+                  // Mặc định (chưa đặt gì): cao tối đa 78px như trước.
+                  maxHeight: site.logoWidth || site.logoHeight ? undefined : 78,
+                  maxWidth: "100%",
+                }}
               />
             ) : (
               <>

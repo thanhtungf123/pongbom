@@ -200,6 +200,17 @@
   color: #fff;
 }
 
+/* Kích thước logo */
+.logo-size-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-size-x {
+  color: #64748b;
+  font-weight: 700;
+}
+
 /* Social links editor (footer) */
 .social-editor {
   display: flex;

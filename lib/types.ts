@@ -63,6 +63,8 @@ export type SiteSettings = {
   titleSuffix?: string; // đuôi title ở trang game & danh mục: "{tên} - {titleSuffix}"
   brandText?: string; // chữ logo nếu không dùng ảnh
   logoUrl?: string; // ảnh logo (Cloudinary)
+  logoWidth?: number; // px — admin tùy chỉnh (để trống = auto)
+  logoHeight?: number; // px — admin tùy chỉnh (để trống = auto, mặc định cao 78)
   faviconUrl?: string;
   footerHtml?: string; // (cũ, tương thích)
   footerText?: string;
