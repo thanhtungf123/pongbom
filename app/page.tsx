@@ -1,17 +1,25 @@
 import GameCard from "@/components/GameCard";
-import PlaceholderCard from "@/components/PlaceholderCard";
-import { getSite, getSectionGames, getVisibleGames } from "@/lib/store";
+import Pagination from "@/components/Pagination";
+import { getSite, getSectionGames, getVisibleGamesPaged } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+const PAGE_SIZE = 21; // 3 hàng × 7 game
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   const site = await getSite();
   const sections = site.homeSections || [];
+  const { page: pageParam } = await searchParams;
+  const page = Math.max(1, parseInt(pageParam || "1", 10) || 1);
 
   // Chưa cấu hình khối nào -> hiển thị mặc định "Top Games" như trước.
   if (sections.length === 0) {
-    const games = await getVisibleGames(60);
-    const placeholders = Array.from({ length: 23 });
+    const { games, total } = await getVisibleGamesPaged(page, PAGE_SIZE);
+    const totalPages = Math.ceil(total / PAGE_SIZE);
     return (
       <>
         <div className="module-heading space-between">
@@ -26,10 +34,15 @@ export default async function HomePage() {
           {games.map((game) => (
             <GameCard key={game.slug} game={game} />
           ))}
-          {placeholders.map((_, i) => (
-            <PlaceholderCard key={i} seed={i} />
-          ))}
         </ul>
+        <Pagination page={page} totalPages={totalPages} basePath="/" />
+
+        {site.homeContentHtml && (
+          <div
+            className="home-content"
+            dangerouslySetInnerHTML={{ __html: site.homeContentHtml }}
+          />
+        )}
       </>
     );
   }

@@ -5,7 +5,7 @@ import "./admin.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Admin · PongBom",
+  title: "Admin Dashboard",
   robots: { index: false, follow: false },
 };
 

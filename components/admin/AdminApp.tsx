@@ -13,6 +13,7 @@ import type {
 import RichText from "./RichText";
 import ImageUpload from "./ImageUpload";
 import { categoryPath } from "@/lib/slug";
+import { CATEGORY_ICONS } from "@/lib/icons";
 
 /* ----------------------------- helpers ----------------------------- */
 
@@ -418,6 +419,17 @@ function GameForm({
         value={(d.thumbnail as string) || ""}
         onChange={(v) => set("thumbnail", v)}
       />
+      <Field
+        label="Thumbnail video (URL mp4/webm)"
+        hint="Tùy chọn. Dán link video (vd Cloudinary). Khi người dùng rê chuột vào ô game trên PC sẽ phát video xem trước này."
+      >
+        <input
+          className="field-input"
+          placeholder="https://… .mp4"
+          value={(d.thumbnailVideo as string) || ""}
+          onChange={(e) => set("thumbnailVideo", e.target.value)}
+        />
+      </Field>
       <Field label="Mô tả ngắn">
         <input
           className="field-input"
@@ -460,11 +472,16 @@ function GameForm({
 
       <div className="check-row">
         <Check
-          label="Gắn nhãn NEW"
+          label="Ghim nhãn NEW (luôn hiện)"
           checked={Boolean(d.isNew)}
           onChange={(v) => set("isNew", v)}
         />
       </div>
+      <p className="field-hint">
+        Game mới thêm TỰ ĐỘNG có nhãn NEW và tự mất sau một thời gian/số game mới
+        (cấu hình ở Cài đặt website). Chỉ tick ô này nếu muốn GHIM cho game luôn
+        hiện NEW, bỏ qua tự động.
+      </p>
 
       <SeoFields draft={d} set={set} />
 
@@ -647,11 +664,36 @@ function SiteForm({ toast }: { toast: (m: string) => void }) {
 
       {sub === "header" && (
         <>
-          <Field label="Tên website" hint="Dùng cho thẻ <title> mặc định của trang chủ.">
+          <Field
+            label="Tên website"
+            hint="Tên chung của site. Dùng làm mặc định khi 2 ô tiêu đề bên dưới để trống."
+          >
             <input
               className="field-input"
               value={d.siteName}
               onChange={(e) => set("siteName", e.target.value)}
+            />
+          </Field>
+          <Field
+            label="Tiêu đề trang chủ (thẻ title)"
+            hint='Thẻ <title> RIÊNG cho trang chủ — có thể để dài cho SEO, vd "Trochoi2nguoi.org - Chơi game 2 người online miễn phí". Để trống sẽ dùng Tên website.'
+          >
+            <input
+              className="field-input"
+              placeholder="Tiêu đề hiển thị trên tab khi ở trang chủ"
+              value={d.homeTitle || ""}
+              onChange={(e) => set("homeTitle", e.target.value)}
+            />
+          </Field>
+          <Field
+            label="Đuôi title (trang game & danh mục)"
+            hint='Hiển thị sau dấu "-" ở các trang game/danh mục, vd: "Bomb Pong Online - Trochoi2nguoi.org". Nên để NGẮN GỌN. Để trống sẽ dùng Tên website.'
+          >
+            <input
+              className="field-input"
+              placeholder="vd: Trochoi2nguoi.org"
+              value={d.titleSuffix || ""}
+              onChange={(e) => set("titleSuffix", e.target.value)}
             />
           </Field>
           <Field
@@ -666,6 +708,39 @@ function SiteForm({ toast }: { toast: (m: string) => void }) {
           </Field>
           <ImageUpload label="Logo (ảnh)" value={d.logoUrl || ""} onChange={(v) => set("logoUrl", v)} />
           <ImageUpload label="Favicon" value={d.faviconUrl || ""} onChange={(v) => set("faviconUrl", v)} />
+          <Field
+            label="Category ưu tiên"
+            hint="Game có gắn các category chọn ở đây (vd 2 Player, 3-4 Players) sẽ tự nổi lên đầu MỌI trang danh mục. Để trống nếu không cần."
+          >
+            <CategoryPicker
+              value={d.priorityCategories || []}
+              onChange={(v) => set("priorityCategories", v)}
+            />
+          </Field>
+          <Field
+            label="Nhãn NEW — số ngày hiển thị"
+            hint="Game thêm trong vòng bao nhiêu ngày thì còn nhãn NEW (vd 30). Đặt 0 để tắt theo ngày."
+          >
+            <input
+              type="number"
+              min={0}
+              className="field-input"
+              value={d.newBadgeDays ?? 30}
+              onChange={(e) => set("newBadgeDays", Number(e.target.value))}
+            />
+          </Field>
+          <Field
+            label="Nhãn NEW — số game mới nhất"
+            hint="Chỉ tối đa bao nhiêu game mới nhất được gắn NEW (vd 12). Khi có game mới hơn chen vào, game cũ tự rụng nhãn. Đặt 0 để tắt."
+          >
+            <input
+              type="number"
+              min={0}
+              className="field-input"
+              value={d.newBadgeCount ?? 12}
+              onChange={(e) => set("newBadgeCount", Number(e.target.value))}
+            />
+          </Field>
         </>
       )}
 
@@ -761,11 +836,12 @@ function CategoryForm({
       </Field>
       <Field
         label="Icon"
-        hint="Dùng icon font gốc (monochrome-category-1 … 13) hoặc dán 1 emoji (vd 🎮)."
+        hint="Chọn 1 icon từ danh sách bên dưới, hoặc dán 1 emoji vào ô (vd 🎮)."
       >
         <div className="icon-row">
           <input
             className="field-input"
+            placeholder="Dán emoji hoặc chọn icon bên dưới"
             value={icon}
             onChange={(e) => set("icon", e.target.value)}
           />
@@ -776,6 +852,20 @@ function CategoryForm({
               <span style={{ fontSize: 24 }}>{icon || "🎲"}</span>
             )}
           </span>
+        </div>
+        <div className="icon-picker">
+          {CATEGORY_ICONS.map(({ icon: cls, name }) => (
+            <button
+              type="button"
+              key={cls}
+              className={`icon-picker-item${icon === cls ? " selected" : ""}`}
+              title={name}
+              onClick={() => set("icon", cls)}
+            >
+              <span className={`cat-icon ${cls}`} />
+              <span className="icon-picker-name">{name}</span>
+            </button>
+          ))}
         </div>
       </Field>
       <div className="check-row">
@@ -1574,7 +1664,7 @@ export default function AdminApp() {
   return (
     <div className="admin-app">
       <aside className="admin-sidebar">
-        <div className="admin-brand">PongBom · Admin</div>
+        <div className="admin-brand">Admin Dashboard</div>
         <nav>
           <button
             className={tab === "games" ? "active" : ""}

@@ -5,22 +5,32 @@ import type { Game } from "@/lib/types";
 import { IFRAME_ALLOW } from "@/lib/types";
 
 /**
- * Luồng chơi game (theo yêu cầu):
+ * Luồng chơi game:
  *  - Mặc định hiện POSTER: thumbnail + nút "Let's Play!" (game CHƯA nạp).
- *  - Bấm "Let's Play!" -> nạp iframe + vào IMMERSIVE (fullscreen).
- *      + Android/iPad/desktop: fullscreen thật + khóa xoay hệ thống theo game.
- *      + iPhone Safari: giả-fullscreen + XOAY khung game 90° (CSS) để game ra
- *        đúng hướng ngay; người dùng xoay máy theo, khi khớp thì bỏ xoay.
- *  - KHÔNG có nút thoát. Thoát fullscreen (nút back hệ thống) hoặc reload trang
- *    -> quay về poster. Nhờ immersive, người dùng không chạm nhầm vùng ngoài
- *    nên hạn chế tối đa việc game bị pause.
+ *  - Bấm "Let's Play!":
+ *      + PC (chuột, pointer fine): nạp game CHƠI NGAY TẠI KHUNG (in-page, hộp
+ *        16:9). KHÔNG tự ép fullscreen. Người dùng tự bấm nút fullscreen nếu muốn.
+ *      + Mobile/tablet (cảm ứng): vào IMMERSIVE (fullscreen) + xử lý hướng xoay
+ *        như cũ (Android lock orientation, iPhone xoay khung 90° bằng CSS).
+ *  - Thoát fullscreen: PC quay về chơi in-page; mobile quay về poster.
  */
 export default function GamePlayer({ game }: { game: Game }) {
-  const wrapperRef = useRef<HTMLDivElement>(null); // #game-container (phủ kín viewport)
+  const wrapperRef = useRef<HTMLDivElement>(null); // #game-container
   const screenRef = useRef<HTMLDivElement>(null); // .game-screen (phần được xoay)
   const trackedRef = useRef(false); // đã ghi nhận lượt chơi chưa (1 lần/trang)
-  const [playing, setPlaying] = useState(false); // đang chơi (immersive) hay poster
+  const [playing, setPlaying] = useState(false); // game đã nạp (iframe) hay poster
+  const [immersive, setImmersive] = useState(false); // phủ kín màn hình (fullscreen)
   const [lightsOff, setLightsOff] = useState(false); // "tắt đèn" làm tối trang
+
+  // PC = có chuột (pointer fine + hover). Phone/tablet cảm ứng -> không phải PC.
+  const isDesktopRef = useRef(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const update = () => (isDesktopRef.current = mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
 
   // Bỏ "fullscreen" khỏi quyền iframe để game không tự vào fullscreen riêng.
   const iframeAllow = IFRAME_ALLOW.replace(/fullscreen;\s*/i, "");
@@ -44,14 +54,10 @@ export default function GamePlayer({ game }: { game: Game }) {
     document.body.style.overflow = lock ? "hidden" : "";
   };
 
-  // Bấm "Let's Play!": nạp game + vào immersive. PHẢI gọi requestFullscreen
-  // ngay trong cử chỉ bấm (không await trước đó) thì trình duyệt mới cho phép.
-  const startPlay = useCallback(() => {
+  // Nạp game vào khung (không fullscreen). Ghi nhận lượt chơi 1 lần/trang.
+  const loadGame = useCallback(() => {
     setPlaying(true);
     setLightsOff(false);
-    lockScroll(true);
-
-    // Ghi nhận lượt chơi THẬT (chỉ khi bấm Let's Play), 1 lần mỗi lần mở trang.
     if (!trackedRef.current) {
       trackedRef.current = true;
       fetch("/api/track", {
@@ -60,6 +66,12 @@ export default function GamePlayer({ game }: { game: Game }) {
         body: JSON.stringify({ type: "play", slug: game.slug }),
       }).catch(() => {});
     }
+  }, [game.slug]);
+
+  // Vào immersive (fullscreen). PHẢI gọi trong cử chỉ bấm của người dùng.
+  const enterImmersive = useCallback(() => {
+    setImmersive(true);
+    lockScroll(true);
 
     const el = wrapperRef.current as (HTMLDivElement & {
       webkitRequestFullscreen?: () => Promise<void>;
@@ -83,9 +95,22 @@ export default function GamePlayer({ game }: { game: Game }) {
       .catch(() => {
         /* không khóa xoay được -> bỏ qua, vẫn immersive */
       });
-  }, [nativeFsSupported, orientation, game.slug]);
+  }, [nativeFsSupported, orientation]);
 
-  const stopPlay = useCallback(() => {
+  // Bấm "Let's Play!" (poster): PC chơi in-page, mobile vào immersive.
+  const startPlay = useCallback(() => {
+    loadGame();
+    if (!isDesktopRef.current) enterImmersive();
+  }, [loadGame, enterImmersive]);
+
+  // Bấm nút fullscreen (thanh dưới): luôn vào fullscreen (cả PC lẫn mobile).
+  const playFullscreen = useCallback(() => {
+    if (!playing) loadGame();
+    enterImmersive();
+  }, [playing, loadGame, enterImmersive]);
+
+  // Thoát immersive: PC -> về chơi in-page; mobile -> về poster.
+  const exitImmersive = useCallback(() => {
     const doc = document as Document & {
       webkitExitFullscreen?: () => Promise<void>;
       webkitFullscreenElement?: Element;
@@ -103,10 +128,11 @@ export default function GamePlayer({ game }: { game: Game }) {
       /* ignore */
     }
     lockScroll(false);
-    setPlaying(false);
+    setImmersive(false);
+    if (!isDesktopRef.current) setPlaying(false); // mobile: quay về poster
   }, []);
 
-  // Thoát fullscreen thật (nút back/Esc) -> quay về poster.
+  // Thoát fullscreen thật (nút back/Esc) -> đồng bộ trạng thái.
   useEffect(() => {
     const onFsChange = () => {
       const doc = document as Document & { webkitFullscreenElement?: Element };
@@ -118,7 +144,8 @@ export default function GamePlayer({ game }: { game: Game }) {
           /* ignore */
         }
         lockScroll(false);
-        setPlaying(false);
+        setImmersive(false);
+        if (!isDesktopRef.current) setPlaying(false);
       }
     };
     document.addEventListener("fullscreenchange", onFsChange);
@@ -130,17 +157,13 @@ export default function GamePlayer({ game }: { game: Game }) {
   }, [nativeFsSupported]);
 
   /*
-    iOS (giả-fullscreen): đồng bộ kích thước khung THEO visualViewport thật (px)
-    thay vì 100dvh/100vw, vì iOS báo dvh/vw sai khi xoay -> vùng chạm iframe lệch.
+    iOS (giả-fullscreen): đồng bộ kích thước khung THEO visualViewport thật (px).
+    Chỉ chạy khi IMMERSIVE (không áp cho lúc chơi in-page trên PC).
   */
   useEffect(() => {
     const s = screenRef.current;
-    if (!playing || !s) return;
+    if (!immersive || !s) return;
 
-    // Chỉ xoay bằng CSS khi KHÔNG khóa xoay hệ thống được (iOS). Android dùng
-    // screen.orientation.lock -> máy tự xoay, không cần CSS rotate.
-    // #game-container đã phủ kín viewport (CSS inset:0, nền đen); ở đây chỉ chỉnh
-    // riêng .game-screen (phủ hết container hoặc xoay 90°).
     const canNativeLock = nativeFsSupported();
 
     const sync = () => {
@@ -159,14 +182,12 @@ export default function GamePlayer({ game }: { game: Game }) {
       s.style.bottom = "auto";
 
       if (needRotate) {
-        // Game XOAY 90° phủ KÍN màn hình để đúng hướng ngay; người dùng xoay theo.
         s.style.top = "0px";
         s.style.left = "0px";
         s.style.width = `${h}px`;
         s.style.height = `${w}px`;
         s.style.transform = `rotate(90deg) translateY(-${w}px)`;
       } else {
-        // Phủ kín theo visualViewport (không xoay).
         s.style.top = `${Math.round(vv?.offsetTop ?? 0)}px`;
         s.style.left = `${Math.round(vv?.offsetLeft ?? 0)}px`;
         s.style.width = `${w}px`;
@@ -199,21 +220,21 @@ export default function GamePlayer({ game }: { game: Game }) {
       s.style.transformOrigin = "";
       s.style.position = "";
     };
-  }, [playing, orientation, nativeFsSupported]);
+  }, [immersive, orientation, nativeFsSupported]);
 
   useEffect(() => () => {
     document.body.style.overflow = "";
   }, []);
 
-  // Esc -> thoát (desktop)
+  // Esc -> thoát immersive (nếu đang immersive).
   useEffect(() => {
-    if (!playing) return;
+    if (!immersive) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") stopPlay();
+      if (e.key === "Escape") exitImmersive();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [playing, stopPlay]);
+  }, [immersive, exitImmersive]);
 
   return (
     <div className={`game${lightsOff ? " lights-dim" : ""}`}>
@@ -227,7 +248,7 @@ export default function GamePlayer({ game }: { game: Game }) {
       <div
         id="game-container"
         ref={wrapperRef}
-        className={playing ? "is-fs" : undefined}
+        className={immersive ? "is-fs" : undefined}
       >
         <div className="game-screen" ref={screenRef}>
           {playing ? (
@@ -259,8 +280,8 @@ export default function GamePlayer({ game }: { game: Game }) {
           )}
         </div>
 
-        {/* Thanh dưới chỉ hiện ở poster (khi chơi là immersive, không có thanh) */}
-        {!playing && (
+        {/* Thanh dưới hiện ở poster VÀ khi chơi in-page (PC). Ẩn khi immersive. */}
+        {!immersive && (
           <div className="game-bottom-bar">
             <div className="game-details">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -287,7 +308,7 @@ export default function GamePlayer({ game }: { game: Game }) {
               <a
                 className="game-full-screen"
                 aria-label="Chơi toàn màn hình"
-                onClick={startPlay}
+                onClick={playFullscreen}
                 role="button"
                 tabIndex={0}
               >

@@ -1,0 +1,163 @@
+/* ============================================================
+   CSS cho các tính năng mới. Nạp SAU site.css, TRƯỚC responsive.css.
+   ============================================================ */
+
+/* ---------- 0) Ảnh trong nội dung rich text (admin chèn) ---------- */
+.home-content img,
+.static-page img,
+.game-page-description-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* ---------- 1) Icon category trong trang chi tiết game ---------- */
+.gp-category-items li a .cat-icon {
+  color: #386a81;
+  font-size: 18px;
+  margin-right: 6px;
+}
+.gp-category-items li a:hover .cat-icon {
+  color: #fff;
+}
+.cat-icon-emoji {
+  font-family: inherit !important; /* emoji không dùng icon font */
+  font-size: 16px;
+}
+
+/* ---------- 2) Video xem trước khi rê chuột ---------- */
+.game-list li a .image {
+  position: relative;
+}
+.card-video {
+  position: absolute;
+  inset: 5px; /* trùng vùng ảnh (padding .image = 5px) */
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  object-fit: cover;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  background: #000;
+}
+.card-video.show {
+  opacity: 1;
+}
+/* Thiết bị không có hover (mobile/tablet): không dùng video xem trước */
+@media (hover: none) {
+  .card-video {
+    display: none;
+  }
+}
+
+/* ---------- 3) Khối game liên quan (dưới khung game — chỉ PC) ---------- */
+.related-games {
+  margin-top: 18px;
+}
+.related-games .trending-title h2 {
+  color: var(--title-red);
+}
+.related-games .trending-title h2 .icon {
+  font-size: 22px;
+}
+
+/* ---------- 4) Phân trang ---------- */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 18px 5px 10px;
+}
+.pagination .page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  color: #386a81;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+.pagination a.page-btn:hover {
+  background: #c89e75;
+  color: #fff;
+  border-color: #c89e75;
+}
+.pagination .page-btn.active {
+  background: #e66062;
+  border-color: #e66062;
+  color: #fff;
+  cursor: default;
+}
+.pagination .page-btn.disabled,
+.pagination .page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+.pagination .page-btn .cat-icon {
+  font-size: 16px;
+}
+.pagination .page-ellipsis {
+  padding: 0 4px;
+  color: #777;
+}
+
+/* ---------- 6) Trang 404 ---------- */
+.notfound {
+  text-align: center;
+  padding: 40px 15px 24px;
+}
+.notfound-code {
+  font-size: 90px;
+  line-height: 1;
+  font-weight: 800;
+  color: #e66062;
+  text-shadow: 0 2px 0 hsla(0, 0%, 100%, 0.5);
+}
+.notfound-title {
+  margin: 10px 0 6px;
+  color: #386a81;
+  font-size: 24px;
+}
+.notfound-text {
+  color: #4a7a1f;
+  font-size: 15px;
+  margin-bottom: 18px;
+}
+.notfound-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #e66062;
+  color: #fff !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+.notfound-home:hover {
+  background: #e13d40;
+}
+.notfound-home .cat-icon {
+  font-size: 18px;
+}
+.notfound-suggest {
+  margin-top: 10px;
+}
+.notfound-suggest .trending-title h2 {
+  color: var(--title-red);
+}
+.notfound-suggest .trending-title h2 .icon {
+  font-size: 22px;
+}

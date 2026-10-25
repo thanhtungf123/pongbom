@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./ui/site.css"; // CSS giao diện gốc (mirror) — nạp sau để thắng Tailwind
+import "./ui/custom.css"; // CSS tính năng mới (video hover, related, phân trang, 404)
 import "./ui/responsive.css"; // Responsive mobile tự viết — nạp sau cùng để đè desktop
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,8 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL("http://localhost:3000"),
     title: {
-      default: site.siteName,
-      template: `%s - ${site.siteName}`,
+      // Trang chủ: tiêu đề riêng (có thể dài). Để trống -> dùng Tên website.
+      default: site.homeTitle || site.siteName,
+      // Trang game/danh mục: "{tiêu đề} - {đuôi}". Đuôi để trống -> dùng Tên website.
+      template: `%s - ${site.titleSuffix || site.siteName}`,
     },
     description:
       "Play free online games directly in your browser — no download, no install.",

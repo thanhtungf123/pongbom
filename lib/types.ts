@@ -13,6 +13,7 @@ export type Game = {
   descriptionHtml?: string; // nội dung (rich text)
   iframeUrl: string;
   thumbnail: string;
+  thumbnailVideo?: string; // video xem trước khi rê chuột (mp4/webm)
   categories: string[];
   controls?: GameControl[];
   rating: number; // điểm trung bình (tự động theo người dùng chấm)
@@ -54,7 +55,9 @@ export type HomeSection = {
 };
 
 export type SiteSettings = {
-  siteName: string;
+  siteName: string; // tên chung của site (mặc định khi homeTitle/titleSuffix để trống)
+  homeTitle?: string; // thẻ <title> RIÊNG cho trang chủ (có thể để dài cho SEO)
+  titleSuffix?: string; // đuôi title ở trang game & danh mục: "{tên} - {titleSuffix}"
   brandText?: string; // chữ logo nếu không dùng ảnh
   logoUrl?: string; // ảnh logo (Cloudinary)
   faviconUrl?: string;
@@ -64,6 +67,9 @@ export type SiteSettings = {
   menuLinks?: FooterLink[]; // MENU các trang hiển thị gần footer (admin quản lý)
   homeSections?: HomeSection[]; // các khối category trên trang chủ
   homeContentHtml?: string; // nội dung (rich text) cuối trang chủ
+  priorityCategories?: string[]; // label các category được ưu tiên nổi đầu mọi trang danh mục
+  newBadgeDays?: number; // số ngày 1 game giữ nhãn NEW (mặc định 30)
+  newBadgeCount?: number; // chỉ N game mới nhất được gắn NEW (mặc định 12)
 };
 
 export type Category = {

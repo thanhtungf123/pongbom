@@ -51,6 +51,11 @@
     display: none !important;
   }
 
+  /* Khối "game liên quan" chỉ dành cho PC */
+  .related-games {
+    display: none !important;
+  }
+
   /* ===== Header mobile: logo + Go to Desktop ===== */
   .top-space {
     display: flex !important;

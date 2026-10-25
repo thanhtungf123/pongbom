@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+import { uploadImageToCloudinary } from "./cloudinary";
 
 /** Upload ảnh lên Cloudinary (unsigned) + nhập URL thủ công. Trả về secure_url. */
 export default function ImageUpload({
@@ -20,24 +18,11 @@ export default function ImageUpload({
 
   const upload = async (file: File) => {
     setErr("");
-    if (!CLOUD || !PRESET) {
-      setErr("Chưa cấu hình Cloudinary (NEXT_PUBLIC_CLOUDINARY_* trong .env.local).");
-      return;
-    }
     setBusy(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("upload_preset", PRESET);
-      const r = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,
-        { method: "POST", body: fd }
-      );
-      const d = await r.json();
-      if (d.secure_url) onChange(d.secure_url);
-      else setErr(d.error?.message || "Upload thất bại");
-    } catch {
-      setErr("Không kết nối được Cloudinary");
+      onChange(await uploadImageToCloudinary(file));
+    } catch (e) {
+      setErr((e as Error).message);
     } finally {
       setBusy(false);
     }

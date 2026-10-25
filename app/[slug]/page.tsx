@@ -1,15 +1,21 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import GameCard from "@/components/GameCard";
+import Pagination from "@/components/Pagination";
 import {
   getCategoryBySlug,
-  getGamesByCategory,
+  getGamesByCategoryPaged,
   getPage,
+  getSite,
 } from "@/lib/store";
+import { categoryPath } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
+const PAGE_SIZE = 21; // 3 hàng × 7 game
+
 type Params = { slug: string };
+type Search = { page?: string };
 
 export async function generateMetadata({
   params,
@@ -22,7 +28,7 @@ export async function generateMetadata({
   const cat = await getCategoryBySlug(slug);
   if (cat) {
     return {
-      title: `${cat.label} Games - chơi miễn phí`,
+      title: `${cat.label} Games`,
       description: `Tổng hợp các game ${cat.label} chơi trực tiếp trên trình duyệt.`,
     };
   }
@@ -41,15 +47,26 @@ export async function generateMetadata({
 
 export default async function DynamicPage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<Search>;
 }) {
   const { slug } = await params;
+  const { page: pageParam } = await searchParams;
+  const pageNum = Math.max(1, parseInt(pageParam || "1", 10) || 1);
 
   // 1) Trang danh mục lưu trữ: /{category} (vd /2-player, /action)
   const cat = await getCategoryBySlug(slug);
   if (cat) {
-    const games = await getGamesByCategory(cat.label);
+    const site = await getSite();
+    const { games, total } = await getGamesByCategoryPaged(
+      cat.label,
+      pageNum,
+      PAGE_SIZE,
+      site.priorityCategories || []
+    );
+    const totalPages = Math.ceil(total / PAGE_SIZE);
     return (
       <>
         <div className="module-heading space-between">
@@ -67,11 +84,18 @@ export default async function DynamicPage({
         </div>
 
         {games.length > 0 ? (
-          <ul className="game-list">
-            {games.map((g) => (
-              <GameCard key={g.slug} game={g} />
-            ))}
-          </ul>
+          <>
+            <ul className="game-list">
+              {games.map((g) => (
+                <GameCard key={g.slug} game={g} />
+              ))}
+            </ul>
+            <Pagination
+              page={pageNum}
+              totalPages={totalPages}
+              basePath={categoryPath(cat.label)}
+            />
+          </>
         ) : (
           <p className="home-section-empty">
             Chưa có game nào trong danh mục {cat.label}.

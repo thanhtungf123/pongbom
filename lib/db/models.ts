@@ -13,6 +13,7 @@ const GameSchema = new Schema(
     descriptionHtml: String,
     iframeUrl: String,
     thumbnail: String,
+    thumbnailVideo: String,
     categories: { type: [String], default: [], index: true },
     controls: [{ label: String, keys: String, _id: false }],
     rating: { type: Number, default: 0 }, // điểm trung bình = ratingSum / ratingCount
@@ -56,6 +57,8 @@ const SiteSchema = new Schema(
   {
     key: { type: String, default: "main", unique: true },
     siteName: String,
+    homeTitle: String,
+    titleSuffix: String,
     brandText: String,
     logoUrl: String,
     faviconUrl: String,
@@ -75,6 +78,11 @@ const SiteSchema = new Schema(
       },
     ],
     homeContentHtml: String,
+    // Các category được ưu tiên nổi lên đầu mọi trang danh mục (lưu theo label)
+    priorityCategories: { type: [String], default: [] },
+    // Nhãn NEW tự động
+    newBadgeDays: { type: Number, default: 30 },
+    newBadgeCount: { type: Number, default: 12 },
   },
   { timestamps: true }
 );
