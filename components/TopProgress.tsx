@@ -43,10 +43,8 @@ export default function TopProgress() {
     setActive(true);
     // Nhảy NGAY lên ~35% để cảm giác tải nhanh ngay từ đầu (NProgress-style).
     setWidth(35);
+    setOverlay(true); // spinner + lớp phủ hiện NGAY cùng thanh tải
     clearTimers();
-    // Lớp phủ mờ + spinner CHỈ hiện khi tải LÂU (>450ms). Nav nhanh chỉ thấy
-    // thanh đỏ trên cùng -> cảm giác tức thì, không nháy overlay nặng nề.
-    overlayRef.current = setTimeout(() => setOverlay(true), 450);
     // Thanh chạy NHANH ở đầu rồi chậm dần về cuối (bước lớn + nhịp ngắn).
     creepRef.current = setInterval(() => {
       setWidth((w) => {

@@ -66,6 +66,11 @@
     display: none !important;
   }
 
+  /* Ẩn hẳn footer trên mobile (theo yêu cầu) */
+  .site-left footer {
+    display: none !important;
+  }
+
   /* Mobile: dùng nút "Xem thêm" (load more), ẩn phân trang kiểu PC */
   .load-more-wrap {
     display: block !important;
@@ -149,10 +154,12 @@
     grid-auto-rows: auto !important;
     align-items: start !important; /* đè align-items:center của CSS gốc */
     justify-items: stretch !important; /* đè justify-items:center của CSS gốc */
-    gap: 10px !important;
-    margin: 0 12px !important;
+    gap: 14px 8px !important; /* dọc rộng hơn ngang (giống twoplayergames) */
+    margin: 0 10px !important;
     padding: 0 !important;
   }
+  /* Card KHÔNG khung trắng: chỉ ảnh bo góc + tên trên nền xanh (giống
+     twoplayergames.org). */
   .game-list li {
     display: block !important;
     position: relative;
@@ -160,10 +167,10 @@
     height: auto !important;
     min-height: 0 !important;
     margin: 0 !important;
-    background: #fff;
-    border-radius: 12px;
-    padding: 6px;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
   }
   .game-list li a {
     display: block !important;
@@ -181,8 +188,9 @@
     padding: 0 0 100% 0 !important; /* tỉ lệ 1:1 */
     margin: 0 !important;
     background: #eef1f4 !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     overflow: hidden !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18) !important;
   }
   .game-list li a .image img,
   .game-list li a .image video {
