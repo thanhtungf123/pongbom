@@ -233,7 +233,7 @@ function CategoryPicker({
   useEffect(() => {
     api("/api/categories", "GET")
       .then((r) => setCats(r.categories || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // Đóng bảng khi bấm ra ngoài.
@@ -316,19 +316,19 @@ function GameForm({
     initial
       ? { ...initial }
       : {
-          slug: "",
-          title: "",
-          shortDescription: "",
-          iframeUrl: "",
-          thumbnail: "",
-          categories: [],
-          rating: 0, // tự động theo đánh giá của người dùng
-          plays: 0, // tự động theo lượt chơi thật của người dùng
-          orientation: "auto",
-          visible: true,
-          robotsIndex: true,
-          robotsFollow: true,
-        }
+        slug: "",
+        title: "",
+        shortDescription: "",
+        iframeUrl: "",
+        thumbnail: "",
+        categories: [],
+        rating: 0, // tự động theo đánh giá của người dùng
+        plays: 0, // tự động theo lượt chơi thật của người dùng
+        orientation: "auto",
+        visible: true,
+        robotsIndex: true,
+        robotsFollow: true,
+      }
   );
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -515,15 +515,15 @@ function PageForm({
     initial
       ? { ...initial }
       : {
-          slug: "",
-          titleTag: "",
-          h1: "",
-          contentHtml: "",
-          robotsIndex: true,
-          robotsFollow: true,
-          showInHeader: true,
-          visible: true,
-        }
+        slug: "",
+        titleTag: "",
+        h1: "",
+        contentHtml: "",
+        robotsIndex: true,
+        robotsFollow: true,
+        showInHeader: true,
+        visible: true,
+      }
   );
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -957,7 +957,7 @@ function CategoryForm({
       </Field>
       <Field
         label="Đường dẫn trang danh mục (URL)"
-        hint="Chỉ chữ thường, số và dấu gạch ngang. SỬA ĐƯỢC. Đổi sẽ đổi URL của chuyên mục. Để trống sẽ tự suy từ tên."
+        hint="Chỉ chữ thường, số và dấu gạch ngang. Đổi sẽ đổi URL của chuyên mục. Để trống sẽ tự suy từ tên."
       >
         <input
           className="field-input"
@@ -1064,7 +1064,7 @@ function CategoriesTab({
         );
         setCounts(m);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
   useEffect(load, [load]);
 
@@ -1342,7 +1342,7 @@ function HomeTab({ toast }: { toast: (m: string) => void }) {
     api("/api/site", "GET").then((r) => setSite(r.site));
     api("/api/categories", "GET")
       .then((r) => setCats(r.categories || []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   if (!site) return <div className="loading">Đang tải…</div>;
@@ -1503,7 +1503,7 @@ function HomeTab({ toast }: { toast: (m: string) => void }) {
 function StatsTab() {
   const [s, setS] = useState<StatsSummary | null>(null);
   useEffect(() => {
-    api("/api/stats", "GET").then((r) => setS(r.stats)).catch(() => {});
+    api("/api/stats", "GET").then((r) => setS(r.stats)).catch(() => { });
   }, []);
   if (!s) return <div className="loading">Đang tải…</div>;
 
