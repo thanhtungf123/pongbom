@@ -23,6 +23,10 @@
   }
   body {
     display: block !important;
+    /* Bỏ dải gradient cyan 190px ở đầu body -> nội dung nằm THẲNG trên nền cỏ.
+       Header tự có nền xanh nhạt riêng (.top-space) nên không bị ảnh hưởng. */
+    background: var(--site-bgr) repeat !important;
+    background-size: 300px 300px !important;
   }
   .site-body {
     display: block !important;
