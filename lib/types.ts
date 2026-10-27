@@ -60,6 +60,7 @@ export type HomeSection = {
 export type SiteSettings = {
   siteName: string; // tên chung của site (mặc định khi homeTitle/titleSuffix để trống)
   homeTitle?: string; // thẻ <title> RIÊNG cho trang chủ (có thể để dài cho SEO)
+  homeMetaDescription?: string; // meta description cho trang chủ
   titleSuffix?: string; // đuôi title ở trang game & danh mục: "{tên} - {titleSuffix}"
   brandText?: string; // chữ logo nếu không dùng ảnh
   logoUrl?: string; // ảnh logo (Cloudinary)
@@ -83,6 +84,8 @@ export type Category = {
   label: string;
   href: string;
   icon?: string; // class icon font hoặc emoji
+  titleTag?: string; // thẻ <title> / SEO (để trống -> "Game {label}")
+  metaDescription?: string; // meta description SEO
   visible: boolean;
   order: number;
 };

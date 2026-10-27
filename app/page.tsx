@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import GameCard from "@/components/GameCard";
 import GameGrid from "@/components/GameGrid";
 import GameHistory from "@/components/GameHistory";
@@ -6,6 +7,16 @@ import { getSite, getSectionGames, getVisibleGamesPaged } from "@/lib/store";
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 21; // 3 hàng × 7 game
+
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await getSite();
+  return {
+    description:
+      site.homeMetaDescription ||
+      "Chơi game online miễn phí ngay trên trình duyệt — không cần tải, không cần cài đặt.",
+    alternates: { canonical: "/" },
+  };
+}
 
 export default async function HomePage({
   searchParams,

@@ -761,6 +761,18 @@ function SiteForm({ toast }: { toast: (m: string) => void }) {
             />
           </Field>
           <Field
+            label="Meta Description trang chủ (SEO)"
+            hint="Mô tả ngắn hiển thị dưới tiêu đề trên Google. Nên ~120–160 ký tự. Để trống sẽ dùng mô tả mặc định."
+          >
+            <textarea
+              className="field-input"
+              rows={2}
+              placeholder="Vd: Trochoi2nguoi.org - chơi hàng trăm game online 2 người miễn phí..."
+              value={d.homeMetaDescription || ""}
+              onChange={(e) => set("homeMetaDescription", e.target.value)}
+            />
+          </Field>
+          <Field
             label="Đuôi title (trang game & danh mục)"
             hint='Hiển thị sau dấu "-" ở các trang game/danh mục, vd: "Bomb Pong Online - Trochoi2nguoi.org". Nên để NGẮN GỌN. Để trống sẽ dùng Tên website.'
           >
@@ -944,6 +956,30 @@ function CategoryForm({
           value={(d.label as string) ? categoryPath(d.label as string) : ""}
           readOnly
           disabled
+        />
+      </Field>
+      <Field
+        label="Tiêu đề (thẻ title / SEO)"
+        hint='Thẻ <title> của trang chuyên mục. Để trống sẽ dùng "Game {tên}".'
+      >
+        <input
+          className="field-input"
+          placeholder={
+            (d.label as string) ? `Game ${d.label}` : "Tiêu đề trang chuyên mục"
+          }
+          value={(d.titleTag as string) || ""}
+          onChange={(e) => set("titleTag", e.target.value)}
+        />
+      </Field>
+      <Field
+        label="Meta Description (SEO)"
+        hint="Mô tả ngắn cho Google (~120–160 ký tự). Để trống sẽ dùng mô tả mặc định."
+      >
+        <textarea
+          className="field-input"
+          rows={2}
+          value={(d.metaDescription as string) || ""}
+          onChange={(e) => set("metaDescription", e.target.value)}
         />
       </Field>
       <Field

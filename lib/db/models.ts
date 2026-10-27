@@ -58,6 +58,7 @@ const SiteSchema = new Schema(
     key: { type: String, default: "main", unique: true },
     siteName: String,
     homeTitle: String,
+    homeMetaDescription: String,
     titleSuffix: String,
     brandText: String,
     logoUrl: String,
@@ -98,6 +99,8 @@ const CategorySchema = new Schema(
     label: String,
     href: String,
     icon: String, // class icon font (vd monochrome-category-6) hoặc emoji
+    titleTag: String,
+    metaDescription: String,
     visible: { type: Boolean, default: true },
     order: { type: Number, default: 0, index: true },
   },

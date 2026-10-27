@@ -28,8 +28,10 @@ export async function generateMetadata({
   const cat = await getCategoryBySlug(slug);
   if (cat) {
     return {
-      title: `Game ${cat.label}`,
-      description: `Tổng hợp các game ${cat.label} chơi trực tiếp trên trình duyệt.`,
+      title: cat.titleTag || `Game ${cat.label}`,
+      description:
+        cat.metaDescription ||
+        `Tổng hợp các game ${cat.label} chơi trực tiếp trên trình duyệt, miễn phí.`,
       alternates: { canonical: `/${slug}` },
     };
   }
