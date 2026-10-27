@@ -25,10 +25,15 @@ export default function GamePlayer({ game }: { game: Game }) {
   const [lightsOff, setLightsOff] = useState(false); // "tắt đèn" làm tối trang
 
   // PC = có chuột (pointer fine + hover). Phone/tablet cảm ứng -> không phải PC.
+  // `canHover` là state để quyết định render video (PC) hay ảnh (mobile) ở poster.
   const isDesktopRef = useRef(false);
+  const [canHover, setCanHover] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const update = () => (isDesktopRef.current = mq.matches);
+    const update = () => {
+      isDesktopRef.current = mq.matches;
+      setCanHover(mq.matches);
+    };
     update();
     mq.addEventListener?.("change", update);
     return () => mq.removeEventListener?.("change", update);
@@ -275,9 +280,9 @@ export default function GamePlayer({ game }: { game: Game }) {
             >
               {/* Thumbnail/video NHỎ ở giữa (giống twoplayergames.org) */}
               <span className="play-poster-box">
-                {game.thumbnailVideo ? (
-                  // Video xem trước: tự phát, tắt tiếng, lặp. poster = thumbnail
-                  // để hiện ngay trong lúc video đang tải.
+                {game.thumbnailVideo && canHover ? (
+                  // Video xem trước CHỈ trên PC (mobile dùng ảnh để tránh lag/tốn
+                  // data). Tự phát, tắt tiếng, lặp; poster = thumbnail khi đang tải.
                   <video
                     className="play-poster-video"
                     src={game.thumbnailVideo}

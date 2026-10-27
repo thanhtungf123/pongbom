@@ -199,6 +199,52 @@
   #game-container {
     border-radius: 0;
   }
+
+  /* Poster mobile: ẢNH GAME PHỦ KÍN làm nền + tên trắng + nút Play
+     (giống m.twoplayergames.org) — khác desktop (khung nhỏ nền xanh). */
+  .play-poster {
+    gap: 16px;
+    background: #000;
+  }
+  .play-poster-box {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 0;
+  }
+  .play-poster::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0, 0, 0, 0.42) 0%,
+      rgba(0, 0, 0, 0.1) 72%
+    );
+    pointer-events: none;
+  }
+  .play-poster-title {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    font-size: 1.8rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75);
+  }
+  .play-poster-btn {
+    position: relative;
+    z-index: 2;
+    font-size: 1.5rem;
+    padding: 12px 30px;
+  }
+  .play-poster-btn svg {
+    width: 30px;
+    height: 24px;
+  }
+
   .game-page-related {
     margin-top: 14px;
   }
