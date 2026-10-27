@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LogoLink from "@/components/LogoLink";
 import ViewToggle from "@/components/ViewToggle";
 import GameBox from "@/components/GameBox";
 import TopMenu from "@/components/TopMenu";
@@ -15,7 +15,7 @@ export default async function Header() {
       <div className="top-space">
         {/* Logo: ảnh nếu admin đặt, không thì chữ nhiều màu mặc định */}
         <div className="logo">
-          <Link href="/" title={site.siteName}>
+          <LogoLink title={site.siteName}>
             {site.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -39,7 +39,7 @@ export default async function Header() {
                 </span>
               </>
             )}
-          </Link>
+          </LogoLink>
         </div>
 
         <div className="top-game-box">
