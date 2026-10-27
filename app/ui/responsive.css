@@ -265,6 +265,11 @@
     margin-top: 14px;
   }
 
+  /* Ẩn danh sách category của game trên mobile (theo yêu cầu) */
+  .gp-categories {
+    display: none !important;
+  }
+
   /* Bảng dưới: ẩn tiêu đề/ảnh/sao; chỉ hiện Post + Share ở giữa */
   .game-page-bottom {
     padding: 0 !important;
