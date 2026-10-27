@@ -215,16 +215,13 @@
     box-shadow: none;
     z-index: 0;
   }
+  /* Lớp phủ sáng mờ phủ ĐỀU toàn ảnh (giống m.twoplayergames) -> ảnh game nhạt đi */
   .play-poster::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(0, 0, 0, 0.42) 0%,
-      rgba(0, 0, 0, 0.1) 72%
-    );
+    background: rgba(255, 255, 255, 0.28);
     pointer-events: none;
   }
   .play-poster-title {
