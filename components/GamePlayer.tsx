@@ -272,15 +272,38 @@ export default function GamePlayer({ game }: { game: Game }) {
               className="play-poster"
               onClick={startPlay}
               aria-label={`Chơi ${game.title}`}
-              style={
-                game.thumbnail
-                  ? { backgroundImage: `url(${game.thumbnail})` }
-                  : undefined
-              }
             >
+              {/* Thumbnail/video NHỎ ở giữa (giống twoplayergames.org) */}
+              <span className="play-poster-box">
+                {game.thumbnailVideo ? (
+                  // Video xem trước: tự phát, tắt tiếng, lặp. poster = thumbnail
+                  // để hiện ngay trong lúc video đang tải.
+                  <video
+                    className="play-poster-video"
+                    src={game.thumbnailVideo}
+                    poster={game.thumbnail}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className="play-poster-thumb"
+                    src={game.thumbnail}
+                    alt={game.title}
+                  />
+                )}
+              </span>
+              {/* Tên game dưới thumbnail */}
+              <span className="play-poster-title">{game.title}</span>
+              {/* Nút Play đỏ + icon tay cầm */}
               <span className="play-poster-btn">
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M8 5v14l11-7z" />
+                <svg viewBox="0 0 640 512" fill="currentColor" aria-hidden="true">
+                  <path d="M192 64C86 64 0 150 0 256S86 448 192 448l256 0c106 0 192-86 192-192s-86-192-192-192L192 64zM496 168a40 40 0 1 1 0 80 40 40 0 1 1 0-80zM392 304a40 40 0 1 1 80 0 40 40 0 1 1 -80 0zM168 160c13.3 0 24 10.7 24 24l0 40 40 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-40 0 0 40c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-40-40 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l40 0 0-40c0-13.3 10.7-24 24-24z" />
                 </svg>
                 Chơi ngay!
               </span>

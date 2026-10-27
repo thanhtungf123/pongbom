@@ -214,27 +214,7 @@
   transform: scale(0.9);
 }
 
-/* Nút "Let's Play!": nhấp nhẹ liên tục để bớt nhàm; dừng khi hover */
-.play-poster-btn {
-  animation: playPulse 2.2s ease-in-out infinite;
-}
-.play-poster:hover .play-poster-btn,
-.play-poster:active .play-poster-btn {
-  animation: none;
-}
-@keyframes playPulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 10px 28px -6px rgba(109, 40, 217, 0.7);
-  }
-  50% {
-    transform: scale(1.055);
-    box-shadow: 0 16px 36px -4px rgba(109, 40, 217, 0.9);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
-  .play-poster-btn,
   .gamebox-save.saved {
     animation: none;
   }

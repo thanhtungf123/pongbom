@@ -28,6 +28,13 @@ function slugify(s: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+// Dùng KHI ĐANG GÕ ô slug: chỉ đổi ký tự không hợp lệ thành "-", GIỮ NGUYÊN gạch
+// ngang (kể cả ở cuối) để người dùng gõ được "-". Chuẩn hóa chặt (bỏ gạch thừa ở
+// đầu/cuối, gộp gạch liền nhau) chỉ chạy lúc lưu bằng slugify().
+function slugifyLive(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+}
+
 function parseIframeSrc(input: string) {
   const m = input.match(/<iframe[^>]*\ssrc=["']([^"']+)["']/i);
   return m ? m[1] : input.trim();
@@ -337,8 +344,9 @@ function GameForm({
 
   const save = async () => {
     const e: string[] = [];
+    const slug = slugify((d.slug as string) || ""); // chuẩn hóa chặt lúc lưu
     if (!(d.title as string)?.trim()) e.push("Tên game không được để trống.");
-    if (!(d.slug as string)?.trim()) e.push("Slug không được để trống.");
+    if (!slug) e.push("Slug không được để trống.");
     if (!(d.iframeUrl as string)?.trim())
       e.push("Cần nhập URL hoặc mã nhúng <iframe> của game.");
     setErrors(e);
@@ -347,6 +355,7 @@ function GameForm({
     try {
       const payload: Game = {
         ...(d as unknown as Game),
+        slug,
         iframeUrl: parseIframeSrc((d.iframeUrl as string) || ""),
         rating: Number(d.rating) || 0,
         plays: Number(d.plays) || 0,
@@ -403,7 +412,7 @@ function GameForm({
         <input
           className="field-input"
           value={(d.slug as string) || ""}
-          onChange={(e) => set("slug", slugify(e.target.value))}
+          onChange={(e) => set("slug", slugifyLive(e.target.value))}
         />
       </Field>
       <Field
@@ -532,14 +541,15 @@ function PageForm({
 
   const save = async () => {
     const e: string[] = [];
+    const slug = slugify((d.slug as string) || ""); // chuẩn hóa chặt lúc lưu
     if (!(d.h1 as string)?.trim())
       e.push("H1 (tiêu đề hiển thị) không được để trống.");
-    if (!(d.slug as string)?.trim()) e.push("Slug không được để trống.");
+    if (!slug) e.push("Slug không được để trống.");
     setErrors(e);
     if (e.length) return;
     setBusy(true);
     try {
-      const payload = { ...d } as unknown as Page;
+      const payload = { ...d, slug } as unknown as Page;
       if (isNew) await api("/api/pages", "POST", payload);
       else await api(`/api/pages/${initial!.slug}`, "PUT", payload);
       toast(isNew ? "Đã tạo trang" : "Đã lưu trang");
@@ -592,7 +602,7 @@ function PageForm({
         <input
           className="field-input"
           value={(d.slug as string) || ""}
-          onChange={(e) => set("slug", slugify(e.target.value))}
+          onChange={(e) => set("slug", slugifyLive(e.target.value))}
         />
       </Field>
 
@@ -913,11 +923,9 @@ function CategoryForm({
   const save = async () => {
     if (!(d.label as string)?.trim()) return toast("Nhập tên category");
     const key = (d.key as string) || slugify(d.label as string);
-    // Slug URL: dùng slug admin nhập, không thì suy từ tên.
-    const slug = categorySlug({
-      slug: d.slug as string,
-      label: d.label as string,
-    });
+    // Slug URL: dùng slug admin nhập (chuẩn hóa chặt), không thì suy từ tên.
+    const raw = (d.slug as string)?.trim();
+    const slug = raw ? slugify(raw) : slugify(d.label as string);
     const href = `/${slug}`;
     setBusy(true);
     try {
@@ -963,7 +971,7 @@ function CategoryForm({
           className="field-input"
           placeholder={(d.label as string) ? slugify(d.label as string) : "duong-dan"}
           value={(d.slug as string) || ""}
-          onChange={(e) => set("slug", slugify(e.target.value))}
+          onChange={(e) => set("slug", slugifyLive(e.target.value))}
         />
         <p className="field-hint">
           URL đầy đủ:{" "}
