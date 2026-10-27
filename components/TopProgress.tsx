@@ -103,6 +103,20 @@ export default function TopProgress() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams]);
 
+  // Cho phép kích hoạt loading thủ công (vd bấm logo khi ĐANG ở trang chủ ->
+  // router.refresh không đổi route nên không có tín hiệu từ pathname).
+  useEffect(() => {
+    const onStart = () => start();
+    const onDone = () => done();
+    window.addEventListener("pongbom:nav-start", onStart);
+    window.addEventListener("pongbom:nav-done", onDone);
+    return () => {
+      window.removeEventListener("pongbom:nav-start", onStart);
+      window.removeEventListener("pongbom:nav-done", onDone);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Dọn timer khi unmount.
   useEffect(
     () => () => {
