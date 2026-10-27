@@ -10,7 +10,10 @@ import Track from "@/components/Track";
 import TopProgress from "@/components/TopProgress";
 import { getSite } from "@/lib/store";
 
-export const dynamic = "force-dynamic";
+// ISR: layout (Header/Footer/metadata) được cache, revalidate nền 60s. Trang con
+// cần động (home/category/search có searchParams, admin có cookie) tự khai báo
+// force-dynamic riêng. Admin sửa -> revalidateTag xóa cache ngay (lib/store.ts).
+export const revalidate = 60;
 
 // URL gốc của site (cho canonical + ảnh OG tuyệt đối). Đặt NEXT_PUBLIC_SITE_URL
 // trong .env khi deploy; mặc định dùng domain chính.

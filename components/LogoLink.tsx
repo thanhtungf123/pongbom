@@ -36,10 +36,10 @@ export default function LogoLink({
     startTransition(() => router.refresh());
   };
 
-  // Refresh xong (isPending false) -> tắt loading, nhưng giữ hiện tối thiểu 600ms.
+  // Refresh xong (isPending false) -> tắt loading, giữ hiện tối thiểu 300ms cho đủ thấy.
   useEffect(() => {
     if (!refreshing || isPending) return;
-    const wait = Math.max(0, 600 - (Date.now() - startAt.current));
+    const wait = Math.max(0, 300 - (Date.now() - startAt.current));
     const t = setTimeout(() => {
       window.dispatchEvent(new Event("pongbom:nav-done"));
       setRefreshing(false);

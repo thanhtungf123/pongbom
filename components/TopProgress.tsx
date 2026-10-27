@@ -22,12 +22,15 @@ export default function TopProgress() {
   const creepRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const safetyRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const overlayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearTimers = () => {
     if (creepRef.current) clearInterval(creepRef.current);
     if (safetyRef.current) clearTimeout(safetyRef.current);
+    if (overlayRef.current) clearTimeout(overlayRef.current);
     creepRef.current = null;
     safetyRef.current = null;
+    overlayRef.current = null;
   };
 
   const start = () => {
@@ -38,16 +41,20 @@ export default function TopProgress() {
       doneRef.current = null;
     }
     setActive(true);
-    setWidth(8);
-    setOverlay(true); // hiện lớp phủ + spinner NGAY cùng thanh trên cùng
+    // Nhảy NGAY lên ~35% để cảm giác tải nhanh ngay từ đầu (NProgress-style).
+    setWidth(35);
     clearTimers();
+    // Lớp phủ mờ + spinner CHỈ hiện khi tải LÂU (>450ms). Nav nhanh chỉ thấy
+    // thanh đỏ trên cùng -> cảm giác tức thì, không nháy overlay nặng nề.
+    overlayRef.current = setTimeout(() => setOverlay(true), 450);
+    // Thanh chạy NHANH ở đầu rồi chậm dần về cuối (bước lớn + nhịp ngắn).
     creepRef.current = setInterval(() => {
       setWidth((w) => {
-        if (w >= 90) return w;
-        const inc = w < 50 ? 9 : w < 75 ? 4 : 1.5;
-        return Math.min(90, w + inc);
+        if (w >= 92) return w;
+        const inc = w < 55 ? 22 : w < 78 ? 10 : 3;
+        return Math.min(92, w + inc);
       });
-    }, 240);
+    }, 140);
     // An toàn: tự hoàn tất sau 15s nếu vì lý do nào đó không nhận tín hiệu xong.
     safetyRef.current = setTimeout(() => done(), 15000);
   };
@@ -61,7 +68,7 @@ export default function TopProgress() {
     doneRef.current = setTimeout(() => {
       setActive(false);
       setWidth(0);
-    }, 300);
+    }, 200);
   };
 
   // Bắt đầu khi bấm link nội bộ (forward). KHÔNG bắt vào Back/Forward.

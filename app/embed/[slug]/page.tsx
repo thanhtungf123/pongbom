@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getGame } from "@/lib/store";
 import { IFRAME_ALLOW } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // ISR: trang nhúng cache được (không searchParams)
 
 type Params = { slug: string };
 

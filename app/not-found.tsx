@@ -2,7 +2,7 @@ import Link from "next/link";
 import GamePager from "@/components/GamePager";
 import { getNewestGames } from "@/lib/store";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // ISR: danh sách game mới cache được
 
 export default async function NotFound() {
   // Gợi ý game mới nhất: tối đa 5 trang × 21 game.

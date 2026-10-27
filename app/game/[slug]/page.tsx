@@ -9,10 +9,21 @@ import {
   getGame,
   getRelatedGames,
   getVisibleCategories,
+  getVisibleGames,
 } from "@/lib/store";
 import { categoryHref } from "@/lib/slug";
 
-export const dynamic = "force-dynamic";
+// ISR: trang game không có searchParams -> cache + prefetch được (bấm game gần
+// như tức thì). Admin sửa game -> revalidateTag("games") xóa cache ngay.
+export const revalidate = 60;
+
+// Pre-render sẵn các trang game lúc build -> trang TĨNH, <Link> prefetch được
+// nên bấm vào game load gần như tức thì. Game thêm sau build (dynamicParams mặc
+// định = true) sẽ render on-demand rồi ISR cache lại.
+export async function generateStaticParams() {
+  const games = await getVisibleGames();
+  return games.map((g) => ({ slug: g.slug }));
+}
 
 type Params = { slug: string };
 

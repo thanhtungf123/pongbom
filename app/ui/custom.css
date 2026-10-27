@@ -27,7 +27,7 @@
   background: #e66062;
   box-shadow: 0 0 10px #e66062, 0 0 6px #e66062;
   border-radius: 0 2px 2px 0;
-  transition: width 0.24s ease, opacity 0.3s ease;
+  transition: width 0.18s ease-out, opacity 0.3s ease;
 }
 
 /* Lớp phủ mờ + spinner giữa màn hình — NỘI DUNG trang vẫn hiện dưới lớp phủ. */
@@ -47,7 +47,7 @@
   border-radius: 50%;
   border: 5px solid rgba(0, 0, 0, 0.14);
   border-top-color: #e66062;
-  animation: pbspin 0.7s linear infinite;
+  animation: pbspin 0.5s linear infinite;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
 @keyframes navLoadingIn {
