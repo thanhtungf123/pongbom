@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Category } from "@/lib/types";
-import { categoryPath } from "@/lib/slug";
+import { categoryHref } from "@/lib/slug";
 
 /**
  * Thanh menu category như bản gốc twoplayergames.
@@ -88,7 +88,7 @@ export default function TopMenu({ categories }: { categories: Category[] }) {
         {/* Category do admin quản lý */}
         {categories.map((cat) => (
           <li key={cat.key}>
-            <Link href={categoryPath(cat.label)} title={cat.label}>
+            <Link href={categoryHref(cat)} title={cat.label}>
               {cat.icon && cat.icon.startsWith("monochrome-") ? (
                 <span className={`cat-icon ${cat.icon}`} />
               ) : (

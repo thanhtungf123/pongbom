@@ -83,6 +83,7 @@ export type Category = {
   key: string;
   label: string;
   href: string;
+  slug?: string; // đường dẫn URL tùy chỉnh (/{slug}); để trống -> suy từ label
   icon?: string; // class icon font hoặc emoji
   titleTag?: string; // thẻ <title> / SEO (để trống -> "Game {label}")
   metaDescription?: string; // meta description SEO

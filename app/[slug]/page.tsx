@@ -8,7 +8,7 @@ import {
   getPage,
   getSite,
 } from "@/lib/store";
-import { categoryPath } from "@/lib/slug";
+import { categoryHref } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +92,7 @@ export default async function DynamicPage({
             total={total}
             page={pageNum}
             pageSize={PAGE_SIZE}
-            basePath={categoryPath(cat.label)}
+            basePath={categoryHref(cat)}
             source={{ category: cat.label }}
           />
         ) : (

@@ -98,6 +98,7 @@ const CategorySchema = new Schema(
     key: { type: String, required: true, unique: true, index: true },
     label: String,
     href: String,
+    slug: String, // đường dẫn URL tùy chỉnh (admin sửa được)
     icon: String, // class icon font (vd monochrome-category-6) hoặc emoji
     titleTag: String,
     metaDescription: String,

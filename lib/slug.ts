@@ -17,3 +17,13 @@ export function slugify(s: string): string {
 export function categoryPath(label: string): string {
   return `/${slugify(label)}`;
 }
+
+/** Slug thực tế của 1 category: dùng slug tùy chỉnh nếu có, không thì suy từ tên. */
+export function categorySlug(cat: { slug?: string; label: string }): string {
+  return cat.slug && cat.slug.trim() ? cat.slug.trim() : slugify(cat.label);
+}
+
+/** Đường dẫn URL của 1 category: /{slug}. */
+export function categoryHref(cat: { slug?: string; label: string }): string {
+  return `/${categorySlug(cat)}`;
+}

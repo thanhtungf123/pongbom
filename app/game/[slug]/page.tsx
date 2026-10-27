@@ -10,7 +10,7 @@ import {
   getRelatedGames,
   getVisibleCategories,
 } from "@/lib/store";
-import { categoryPath } from "@/lib/slug";
+import { categoryHref } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
@@ -50,9 +50,10 @@ export default async function GamePage({
   const game = await getGame(slug);
   if (!game || game.visible === false) notFound();
 
-  // Icon category thật (lấy từ danh sách category admin quản lý).
+  // Icon + đường dẫn category thật (lấy từ danh sách category admin quản lý).
   const categories = await getVisibleCategories();
   const iconOf = new Map(categories.map((c) => [c.label, c.icon]));
+  const catByLabel = new Map(categories.map((c) => [c.label, c]));
 
   // Game liên quan (cùng category, random tối đa 21 — chỉ hiện trên PC).
   const related = await getRelatedGames(game.categories || [], game.slug, 21);
@@ -135,7 +136,10 @@ export default async function GamePage({
               const icon = iconOf.get(c);
               return (
                 <li key={c}>
-                  <Link href={categoryPath(c)} title={`${c} Games`}>
+                  <Link
+                    href={categoryHref(catByLabel.get(c) || { label: c })}
+                    title={`Game ${c}`}
+                  >
                     {icon && icon.startsWith("monochrome-") ? (
                       <span className={`cat-icon ${icon}`} />
                     ) : (

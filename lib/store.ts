@@ -11,7 +11,7 @@ import {
 } from "./db/models";
 import type { PipelineStage } from "mongoose";
 import type { Category, Game, Page, SiteSettings, StatsSummary } from "./types";
-import { slugify } from "./slug";
+import { categorySlug } from "./slug";
 
 /* ===================== GAMES ===================== */
 
@@ -342,7 +342,8 @@ export async function getVisibleCategories(): Promise<Category[]> {
 /** Tìm category hiển thị theo slug URL (vd "2-player" khớp label "2 Player"). */
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const cats = await getVisibleCategories();
-  return cats.find((c) => slugify(c.label) === slug) || null;
+  // Khớp theo slug tùy chỉnh (nếu có) hoặc slug suy từ tên.
+  return cats.find((c) => categorySlug(c) === slug) || null;
 }
 
 /** Tất cả game hiển thị thuộc 1 category (lọc theo label), sắp theo thứ tự. */

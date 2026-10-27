@@ -14,7 +14,7 @@ import type {
 import RichText from "./RichText";
 import ImageUpload from "./ImageUpload";
 import SocialIcon from "@/components/SocialIcon";
-import { categoryPath } from "@/lib/slug";
+import { categorySlug, categoryHref } from "@/lib/slug";
 import { CATEGORY_ICONS } from "@/lib/icons";
 import { SOCIAL_ICONS, SOCIAL_KEYS } from "@/lib/socialIcons";
 
@@ -913,11 +913,15 @@ function CategoryForm({
   const save = async () => {
     if (!(d.label as string)?.trim()) return toast("Nhập tên category");
     const key = (d.key as string) || slugify(d.label as string);
-    // URL danh mục luôn tự suy ra từ tên (giống twoplayergames): /{slug}
-    const href = categoryPath(d.label as string);
+    // Slug URL: dùng slug admin nhập, không thì suy từ tên.
+    const slug = categorySlug({
+      slug: d.slug as string,
+      label: d.label as string,
+    });
+    const href = `/${slug}`;
     setBusy(true);
     try {
-      const payload = { ...d, key, href };
+      const payload = { ...d, key, slug, href };
       if (isNew) await api("/api/categories", "POST", payload);
       else await api(`/api/categories/${initial!.key}`, "PUT", payload);
       toast(isNew ? "Đã thêm category" : "Đã lưu category");
@@ -944,19 +948,33 @@ function CategoryForm({
         <input
           className="field-input"
           value={(d.label as string) || ""}
-          onChange={(e) => set("label", e.target.value)}
+          onChange={(e) => {
+            set("label", e.target.value);
+            // Tự điền slug theo tên khi tạo mới & chưa sửa slug thủ công.
+            if (isNew && !(d.slug as string)) set("slug", slugify(e.target.value));
+          }}
         />
       </Field>
       <Field
-        label="Đường dẫn trang danh mục"
-        hint="Tự tạo từ tên — giống twoplayergames.org. Không cần nhập."
+        label="Đường dẫn trang danh mục (URL)"
+        hint="Chỉ chữ thường, số và dấu gạch ngang. SỬA ĐƯỢC. Đổi sẽ đổi URL của chuyên mục. Để trống sẽ tự suy từ tên."
       >
         <input
           className="field-input"
-          value={(d.label as string) ? categoryPath(d.label as string) : ""}
-          readOnly
-          disabled
+          placeholder={(d.label as string) ? slugify(d.label as string) : "duong-dan"}
+          value={(d.slug as string) || ""}
+          onChange={(e) => set("slug", slugify(e.target.value))}
         />
+        <p className="field-hint">
+          URL đầy đủ:{" "}
+          <b>
+            /
+            {categorySlug({
+              slug: d.slug as string,
+              label: (d.label as string) || "",
+            })}
+          </b>
+        </p>
       </Field>
       <Field
         label="Tiêu đề (thẻ title / SEO)"
@@ -1115,7 +1133,7 @@ function CategoriesTab({
               <td>
                 <span className="count-badge">{counts[c.label] || 0}</span>
               </td>
-              <td className="muted">{categoryPath(c.label)}</td>
+              <td className="muted">{categoryHref(c)}</td>
               <td>
                 <button
                   className={`pill ${c.visible !== false ? "pill-on" : "pill-off"}`}
