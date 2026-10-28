@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GameCard from "./GameCard";
 import type { Game } from "@/lib/types";
 
-// Carousel phân trang cho 1 KHỐI trang chủ — bố cục/markup giống twoplayergames:
-//   .trending-slider > .slide-list > .slide(×N) > ul.game-list
-// Mỗi "slide" = `perSlide` game (số game MỖI TRANG, mặc định 21 = 3 hàng × 7 cột).
-// Nếu category có nhiều game hơn perSlide -> tự phân trang (‹ + chấm tròn + ›).
-// Trên mobile (responsive.css) slide xếp dọc thành danh sách phẳng, ẩn điều khiển.
+// Hiển thị 1 KHỐI game trang chủ.
+//  - DESKTOP: carousel trượt ngang giống twoplayergames
+//    (.trending-slider > .slide-list > .slide(×N) > ul.game-list), mỗi slide
+//    `perSlide` game (mặc định 21 = 3 hàng × 7). Điều khiển ‹ + chấm tròn + ›.
+//  - MOBILE: lưới 3 cột, hiện `MOBILE_BATCH` (96) game, còn game thì có nút
+//    "Xem thêm" lộ thêm 96 game nữa (giống m.twoplayergames).
+const MOBILE_BATCH = 96;
+
 export default function HomeSlider({
   games,
   perSlide = 21,
@@ -17,8 +20,45 @@ export default function HomeSlider({
   perSlide?: number;
 }) {
   const [page, setPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [shown, setShown] = useState(MOBILE_BATCH);
 
-  // Chia danh sách thành các trang `perSlide` game.
+  useEffect(() => {
+    setMounted(true);
+    const mq = window.matchMedia("(max-width: 820px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
+  /* ----------------------------- MOBILE ----------------------------- */
+  // Lưới 3 cột: hiện 96 game, còn game thì nút "Xem thêm" lộ thêm 96.
+  if (mounted && isMobile) {
+    return (
+      <>
+        <ul className="game-list">
+          {games.slice(0, shown).map((g) => (
+            <GameCard key={g.slug} game={g} />
+          ))}
+        </ul>
+        {shown < games.length && (
+          <div className="load-more-wrap">
+            <button
+              type="button"
+              className="load-more"
+              onClick={() => setShown((s) => s + MOBILE_BATCH)}
+            >
+              Xem thêm game
+            </button>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  /* ----------------------------- DESKTOP ---------------------------- */
   const size = Math.max(1, Math.floor(perSlide) || 21);
   const pages: Game[][] = [];
   for (let i = 0; i < games.length; i += size)
