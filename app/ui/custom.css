@@ -76,6 +76,73 @@
   }
 }
 
+/* ---------- Carousel phân trang khối trang chủ (giống twoplayergames) ---------- */
+.trending-slider {
+  overflow: hidden;
+  position: relative;
+  padding-top: 10px;
+}
+/* Track trượt ngang: mỗi slide rộng 100% khung, dịch bằng translateX (React set) */
+.trending-slider .slide-list {
+  display: flex;
+  width: 100%;
+  transition: transform 0.35s ease;
+}
+.trending-slider .slide-list .slide {
+  flex: 0 0 100%;
+  width: 100%;
+}
+/* Thanh điều khiển: ‹ + chấm tròn + › (căn giữa dưới khối) */
+.slider-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding-bottom: 10px;
+}
+.slider-pagination {
+  margin: 0 5px;
+  display: inline-flex;
+  align-items: center;
+}
+.slider-control-prev,
+.slider-control-next {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  line-height: 29px;
+  text-align: center;
+  border-radius: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.slider-pagination a {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin: 0 5px;
+  border-radius: 100%;
+  background-color: rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.slider-pagination a.active {
+  background-color: #c97c40;
+}
+.slider-control-prev:hover,
+.slider-control-next:hover,
+.slider-pagination a:hover {
+  background-color: #c39970;
+}
+.slider-control-prev.inactive,
+.slider-control-next.inactive {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 /* ---------- Load more (mobile) + animation game mới ---------- */
 .load-more-wrap {
   display: none; /* PC ẩn, dùng phân trang; mobile hiện (responsive.css) */

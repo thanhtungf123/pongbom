@@ -83,6 +83,25 @@
     display: none !important;
   }
 
+  /* Carousel khối trang chủ: trên mobile BỎ trượt, xếp các slide dọc thành danh
+     sách phẳng (như twoplayergames mobile), ẩn thanh điều khiển ‹ • › */
+  .trending-slider {
+    overflow: visible !important;
+    padding-top: 0 !important;
+  }
+  .trending-slider .slide-list {
+    display: block !important;
+    transform: none !important;
+    width: 100% !important;
+    transition: none !important;
+  }
+  .trending-slider .slide-list .slide {
+    width: 100% !important;
+  }
+  .slider-controls {
+    display: none !important;
+  }
+
   /* ===== Header mobile: logo + Go to Desktop ===== */
   .top-space {
     display: flex !important;

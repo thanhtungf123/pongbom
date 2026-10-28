@@ -1368,7 +1368,7 @@ function HomeTab({ toast }: { toast: (m: string) => void }) {
   const addSection = () =>
     setSections([
       ...sections,
-      { title: "", category: "", mode: "top", limit: 14 },
+      { title: "", category: "", mode: "top", limit: 21 },
     ]);
 
   const removeSection = (i: number) =>
@@ -1464,7 +1464,10 @@ function HomeTab({ toast }: { toast: (m: string) => void }) {
                 <option value="new">Mới (thêm gần đây)</option>
               </select>
             </Field>
-            <Field label="Số game">
+            <Field
+              label="Số game / trang"
+              hint="Số game hiển thị mỗi trang. Nếu category có nhiều hơn -> tự phân trang (carousel ‹ • ›). Chuẩn: 21 (3 hàng × 7)."
+            >
               <input
                 type="number"
                 min="1"
@@ -1472,7 +1475,7 @@ function HomeTab({ toast }: { toast: (m: string) => void }) {
                 className="field-input"
                 value={s.limit}
                 onChange={(e) =>
-                  setField(i, "limit", Number(e.target.value) || 14)
+                  setField(i, "limit", Number(e.target.value) || 21)
                 }
               />
             </Field>

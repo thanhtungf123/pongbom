@@ -238,7 +238,9 @@ export const getSectionGames = unstable_cache(
   async (
     category: string,
     mode: "top" | "new",
-    limit: number
+    // Lấy TẤT CẢ game trong category (chặn trên 200 cho an toàn). Việc chia trang
+    // theo "số game mỗi trang" do HomeSlider xử lý ở client.
+    cap = 200
   ): Promise<Game[]> => {
     await dbConnect();
     const filter: Record<string, unknown> = { visible: { $ne: false } };
@@ -247,7 +249,7 @@ export const getSectionGames = unstable_cache(
       mode === "new" ? { createdAt: -1 } : { plays: -1 };
     const games = (await GameModel.find(filter, CLEAN)
       .sort(sort)
-      .limit(limit > 0 ? limit : 14)
+      .limit(cap)
       .lean()) as unknown as Game[];
     return markNew(games);
   },

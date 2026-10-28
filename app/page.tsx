@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import GameCard from "@/components/GameCard";
 import GameGrid from "@/components/GameGrid";
 import GameHistory from "@/components/GameHistory";
+import HomeSlider from "@/components/HomeSlider";
 import { getSite, getSectionGames, getVisibleGamesPaged } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -60,13 +61,10 @@ export default async function HomePage({
   }
 
   // Lấy game cho từng khối (song song).
+  // Lấy TẤT CẢ game của mỗi khối; limit = số game MỖI TRANG (do HomeSlider chia).
   const lists = await Promise.all(
     sections.map((s) =>
-      getSectionGames(
-        s.category || "",
-        s.mode === "new" ? "new" : "top",
-        s.limit || 14
-      )
+      getSectionGames(s.category || "", s.mode === "new" ? "new" : "top")
     )
   );
 
@@ -98,13 +96,14 @@ export default async function HomePage({
             </div>
             {i === 0 && <GameHistory />}
           </div>
-          <ul className="game-list">
-            {lists[i].length > 0 ? (
-              lists[i].map((g) => <GameCard key={g.slug} game={g} />)
-            ) : (
+          {lists[i].length > 0 ? (
+            // Carousel phân trang (giống twoplayergames): limit = số game/trang.
+            <HomeSlider games={lists[i]} perSlide={s.limit || 21} />
+          ) : (
+            <ul className="game-list">
               <li className="home-section-empty">Chưa có game trong mục này.</li>
-            )}
-          </ul>
+            </ul>
+          )}
         </section>
       ))}
 
