@@ -530,55 +530,60 @@
   font-size: 22px;
 }
 
-/* ---------- 4) Phân trang ---------- */
+/* ---------- 4) Phân trang — kiểu twoplayergames.org (pill tròn tan/cam) ---------- */
 .pagination {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin: 18px 5px 10px;
+  list-style: none;
+  margin: 18px 5px 12px;
+  padding: 0;
 }
 .pagination .page-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
-  height: 34px;
-  padding: 0 10px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
-  background: #fff;
-  color: #386a81;
-  font-size: 14px;
+  min-width: 45px;
+  height: 45px;
+  padding: 0 14px;
+  border: 2px solid transparent;
+  border-radius: 25px;
+  background: rgba(0, 0, 0, 0.15);
+  color: #333;
+  font-size: 1.5rem;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.1s ease, color 0.1s ease;
+  transition: all 0.2s ease;
 }
 .pagination a.page-btn:hover {
   background: #c89e75;
+  border-color: rgba(0, 0, 0, 0.3);
   color: #fff;
-  border-color: #c89e75;
 }
 .pagination .page-btn.active {
-  background: #e66062;
-  border-color: #e66062;
+  background: #cf8246;
+  border-color: rgba(0, 0, 0, 0.3);
   color: #fff;
   cursor: default;
 }
 .pagination .page-btn.disabled,
 .pagination .page-btn:disabled {
-  opacity: 0.4;
+  background: rgba(0, 0, 0, 0.05);
+  color: #999;
   cursor: default;
   pointer-events: none;
 }
 .pagination .page-btn .cat-icon {
-  font-size: 16px;
+  font-size: 1.5rem;
 }
 .pagination .page-ellipsis {
-  padding: 0 4px;
+  padding: 0 6px;
   color: #777;
+  align-self: center;
+  font-size: 1.2rem;
 }
 
 /* ---------- 6) Trang 404 ---------- */

@@ -12,7 +12,7 @@ import { categoryHref } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 21; // 3 hàng × 7 game
+const PAGE_SIZE = 105; // 105 game/trang; vượt quá sẽ phân trang (giống twoplayergames)
 
 type Params = { slug: string };
 type Search = { page?: string };
