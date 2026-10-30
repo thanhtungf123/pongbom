@@ -381,11 +381,11 @@
     height: auto !important;
     padding: 16px 14px;
   }
-  /* Nút "Chia sẻ" to hơn trên mobile (giống m.twoplayergames) */
+  /* Nút "Share" trên mobile (bo tròn như demo, cỡ vừa) */
   .game-page-social .se-trigger {
-    font-size: 15px;
-    padding: 9px 20px;
-    border-radius: 999px;
+    font-size: 14px;
+    padding: 6px 15px;
+    border-radius: 18px;
   }
 
   /* Mô tả trên nền xanh */

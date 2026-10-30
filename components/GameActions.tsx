@@ -3,16 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Nút "Chia sẻ" + bảng Chia sẻ/Nhúng — dựng LẠI đúng theo widget gốc của
- * twoplayergames.org (shareEmbed): bấm nút -> hiện DROPDOWN dạng bong bóng
- * (có mũi nhọn) với 2 tab "Chia sẻ" / "Nhúng"; mỗi tab là 1 ô input 1 dòng
- * (link game hoặc mã nhúng iframe) + nút Copy. KHÔNG dùng modal/textarea.
+ * Nút "Share" (cam) ở khung game — theo widget twoplayergames.org:
+ * bấm "Share" -> xổ xuống 1 BẢNG (nền mờ nhẹ, có mũi nhọn nhô lên) gồm 2 tab
+ * "Share" / "Embed"; mỗi tab là 1 ô input 1 dòng (link game / link nhúng) + Copy.
  */
 export default function GameActions({
   slug,
 }: {
   slug: string;
-  title?: string; // (không dùng — widget chỉ cần link/mã nhúng theo slug)
+  title?: string; // (không dùng — bỏ nút X Post)
 }) {
   const [origin, setOrigin] = useState("");
   const [open, setOpen] = useState(false);
@@ -41,12 +40,10 @@ export default function GameActions({
   }, [open]);
 
   const pageUrl = origin ? `${origin}/game/${slug}` : "";
-  const embedCode = origin
-    ? `<iframe src="${origin}/embed/${slug}" width="800" height="600" style="max-width:100%;border:0;" frameborder="0" scrolling="no" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>`
-    : "";
+  const embedUrl = origin ? `${origin}/embed/${slug}` : "";
 
   const copy = async (which: "share" | "embed") => {
-    const text = which === "embed" ? embedCode : pageUrl;
+    const text = which === "embed" ? embedUrl : pageUrl;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(which);
@@ -69,7 +66,7 @@ export default function GameActions({
         onClick={toggle}
         aria-expanded={open}
       >
-        <span className="monochrome-share" /> Chia sẻ
+        <span className="monochrome-share" /> Share
       </a>
 
       {open && (
@@ -80,13 +77,13 @@ export default function GameActions({
                 className={`se-tab${tab === "share" ? " se-active" : ""}`}
                 onClick={() => setTab("share")}
               >
-                <span className="monochrome-share" /> Chia sẻ
+                <span className="monochrome-share" /> Share
               </li>
               <li
                 className={`se-tab${tab === "embed" ? " se-active" : ""}`}
                 onClick={() => setTab("embed")}
               >
-                <span className="monochrome-embed-close" /> Nhúng
+                <span className="monochrome-embed-close" /> Embed
               </li>
             </ul>
 
@@ -104,7 +101,7 @@ export default function GameActions({
                 onClick={() => copy("share")}
               >
                 <span className="monochrome-copy" />{" "}
-                {copied === "share" ? "Đã copy" : "Copy"}
+                {copied === "share" ? "Copied" : "Copy"}
               </button>
             </div>
 
@@ -113,7 +110,7 @@ export default function GameActions({
                 type="text"
                 className="se-input"
                 readOnly
-                value={embedCode}
+                value={embedUrl}
                 onFocus={(e) => e.currentTarget.select()}
               />
               <button
@@ -122,7 +119,7 @@ export default function GameActions({
                 onClick={() => copy("embed")}
               >
                 <span className="monochrome-copy" />{" "}
-                {copied === "embed" ? "Đã copy" : "Copy"}
+                {copied === "embed" ? "Copied" : "Copy"}
               </button>
             </div>
           </div>

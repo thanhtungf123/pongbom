@@ -255,26 +255,31 @@
   display: block;
 }
 
-/* ===== Widget Chia sẻ / Nhúng — dựng lại theo widget gốc twoplayergames.org
-   (shareEmbed): nút mở DROPDOWN bong bóng có mũi nhọn, 2 tab, mỗi tab 1 ô
-   input + nút Copy. ===== */
+/* ===== Widget Chia sẻ / Nhúng — khớp đúng demo m.twoplayergames.org:
+   hàng nút "X Post" (đen) + "Share" (cam); bấm Share -> bảng NỀN TỐI MỜ (frosted)
+   có MŨI NHỌN nhô lên, 2 tab Share/Embed (tab active = ô tối mờ chữ trắng),
+   ô input + nút Copy (chữ xanh dương).
+   Font = Varela Round, weight 400 (font chỉ có 1 weight -> KHÔNG để 700 kẻo
+   bị faux-bold lệch nét). */
 .game-page-share-embed {
-  position: relative;
   display: inline-block;
-  margin-right: 5px;
+  text-align: center;
+  font-family: "Varela Round", sans-serif;
+  font-weight: 400;
 }
-/* Nút bấm mở bảng (cam như m.twoplayergames) */
+/* Nút "Share" (cam) */
 .se-trigger {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #dc5a00;
-  color: #fff;
-  border-radius: 10px;
-  line-height: 20px;
-  padding: 5px 12px;
-  font-weight: 700;
+  border-radius: 18px;
+  line-height: 18px;
+  padding: 5px 13px;
+  font-weight: 400;
   font-size: 13px;
+  font-family: "Varela Round", sans-serif;
+  color: #fff;
+  background: #e8822e;
   text-decoration: none;
   cursor: pointer;
   -webkit-user-select: none;
@@ -282,119 +287,126 @@
 }
 .se-trigger:hover,
 .se-trigger.open {
-  background: #c45000;
+  background: #da760f;
 }
 .se-trigger .monochrome-share {
   position: relative;
   top: 1px;
 }
-/* Bong bóng dropdown — bám dưới nút, có mũi nhọn ở trên */
+/* Bảng xổ xuống (INLINE, đẩy nội dung xuống) */
 .se-box {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 8px;
-  z-index: 9999999;
+  position: relative;
+  margin: 10px auto 2px;
   width: min(360px, 92vw);
   animation: se-dropdown-show 0.18s ease-out;
 }
-/* Nền trong mờ (pale cyan) đúng bản gốc — KHÔNG phải khung trắng đậm */
-.se-panel {
-  position: relative;
-  background: rgba(240, 255, 255, 0.5);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border-radius: 10px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-  padding: 5px;
-}
+/* Mũi nhọn nhô lên (hình thoi) — CANH GIỮA, ngay dưới nút Share */
 .se-box::before {
   content: "";
   position: absolute;
-  top: -6px;
+  top: -5px;
   left: 50%;
-  margin-left: -7px;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-bottom: 7px solid #c6dfdf;
+  width: 13px;
+  height: 13px;
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
 }
-/* Tabs: chữ xám in hoa, tab đang chọn = nền xám nhạt (như bản gốc) */
+/* Nền MỜ nhẹ (frosted) — chỉ sẫm rất nhẹ nền xanh phía sau, hơi mờ & sáng */
+.se-panel {
+  position: relative;
+  background: rgba(0, 0, 0, 0.05);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  border-radius: 12px;
+  box-shadow: 0 8px 22px -12px rgba(0, 0, 0, 0.3);
+  padding: 6px 10px 12px;
+}
+/* Tabs: Share / Embed — tab đang chọn = ô tối mờ chữ trắng */
 .se-tabs {
   display: flex;
   justify-content: center;
-  gap: 4px;
+  gap: 10px;
   list-style: none;
   margin: 0;
-  padding: 15px 0 0;
+  padding: 8px 0 2px;
   -webkit-user-select: none;
   user-select: none;
 }
 .se-tab {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   background: none;
-  border-radius: 25px;
-  color: #222;
+  border-radius: 20px;
+  color: #2e3a22;
   cursor: pointer;
-  padding: 10px;
-  font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
+  padding: 8px 18px;
+  font-weight: 400;
+  font-size: 15px;
+  font-family: "Varela Round", sans-serif;
 }
 .se-tab.se-active {
-  background: rgba(0, 0, 0, 0.1);
-  color: #222;
+  background: rgba(0, 0, 0, 0.22);
+  color: #fff;
 }
 /* Nội dung mỗi tab: ô input 1 dòng + nút Copy (cùng 1 hàng) */
 .se-tabc {
   display: none;
-  padding: 15px;
+  padding: 12px 0 2px;
 }
 .se-tabc.se-active {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 .se-input {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
-  font-size: 13px;
-  padding: 5px 7px;
+  height: auto;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "Varela Round", sans-serif;
+  padding: 9px 12px;
   white-space: nowrap;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  border-radius: 4px;
-  background: #fff;
-  color: #222;
+  border: none;
+  border-radius: 8px;
+  background: #f3f4f1;
+  color: #444;
+  text-shadow: none;
 }
 .se-copy {
   flex: 0 0 auto;
+  width: auto;
+  height: auto;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   white-space: nowrap;
-  font-size: 13px;
-  padding: 5px 10px;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  border-radius: 4px;
-  background: #e9e9e9;
-  color: #222;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: "Varela Round", sans-serif;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #fff;
+  color: #2f74d9;
+  text-shadow: none;
   cursor: pointer;
 }
 .se-copy:hover {
-  background: #dedede;
+  background: #f2f6fd;
 }
 @keyframes se-dropdown-show {
-  0% {
+  from {
     opacity: 0;
-    margin-top: 2px;
+    transform: translateY(-4px);
   }
-  100% {
+  to {
     opacity: 1;
-    margin-top: 8px;
+    transform: translateY(0);
   }
 }
 
