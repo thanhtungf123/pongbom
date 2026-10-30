@@ -381,16 +381,10 @@
     height: auto !important;
     padding: 16px 14px;
   }
-  .game-page-social .gp-embed-btn {
-    display: none !important;
-  }
-  .game-page-social .gp-share-btn {
-    display: inline-flex !important;
-  }
-  .gp-post-btn,
-  .gp-share-btn {
+  /* Nút "Chia sẻ" to hơn trên mobile (giống m.twoplayergames) */
+  .game-page-social .se-trigger {
     font-size: 15px;
-    padding: 9px 18px;
+    padding: 9px 20px;
     border-radius: 999px;
   }
 

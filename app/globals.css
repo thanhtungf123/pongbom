@@ -255,131 +255,147 @@
   display: block;
 }
 
-/* ===== Modal lấy mã nhúng (Embed) ===== */
-/* ===== Bảng Chia sẻ / Nhúng (giống m.twoplayergames.org) ===== */
-.share-sheet-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+/* ===== Widget Chia sẻ / Nhúng — dựng lại theo widget gốc twoplayergames.org
+   (shareEmbed): nút mở DROPDOWN bong bóng có mũi nhọn, 2 tab, mỗi tab 1 ô
+   input + nút Copy. ===== */
+.game-page-share-embed {
+  position: relative;
+  display: inline-block;
+  margin-right: 5px;
 }
-.share-sheet {
-  background: #fff;
-  border-radius: 14px;
-  width: 100%;
-  max-width: 480px;
-  padding: 16px 18px 18px;
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
-}
-.share-sheet-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.share-tabs {
-  display: inline-flex;
-  gap: 8px;
-}
-.share-tab {
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: 999px;
-  padding: 7px 16px;
-  background: #eef2f7;
-  color: #475569;
+/* Nút bấm mở bảng (cam như m.twoplayergames) */
+.se-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-}
-.share-tab.active {
-  background: #528532;
+  gap: 5px;
+  background: #dc5a00;
   color: #fff;
-}
-.share-sheet-close {
-  background: none;
-  border: none;
-  font-size: 26px;
-  line-height: 1;
-  cursor: pointer;
-  color: #64748b;
-  padding: 0 4px;
-}
-.share-sheet-desc {
-  margin: 12px 0 10px;
-  font-size: 13px;
-  color: #475569;
-}
-.share-copy-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-}
-.share-copy-row-right {
-  justify-content: flex-end;
-}
-.share-link {
-  flex: 1 1 auto;
-  min-width: 0;
-  font: inherit;
-  font-size: 13px;
-  padding: 9px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #0f172a;
-}
-.share-copy-row .btn-copy {
-  flex: 0 0 auto;
-}
-.embed-code {
-  width: 100%;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #0f172a;
-  resize: vertical;
-}
-.btn-copy {
-  background: #528532;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 9px 18px;
-  font: inherit;
+  border-radius: 10px;
+  line-height: 20px;
+  padding: 5px 12px;
   font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
   cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.btn-copy:hover {
-  background: #477a27;
+.se-trigger:hover,
+.se-trigger.open {
+  background: #c45000;
 }
-
-/* Toast chia sẻ (copy link…) */
-.share-toast {
-  position: fixed;
-  bottom: 24px;
+.se-trigger .monochrome-share {
+  position: relative;
+  top: 1px;
+}
+/* Bong bóng dropdown — bám dưới nút, có mũi nhọn ở trên */
+.se-box {
+  position: absolute;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10001;
-  background: rgba(0, 0, 0, 0.85);
+  margin-top: 8px;
+  z-index: 9999999;
+  width: min(360px, 92vw);
+  animation: se-dropdown-show 0.18s ease-out;
+}
+.se-panel {
+  position: relative;
+  background: rgba(243, 253, 253, 0.94);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  padding: 4px 5px 12px;
+}
+.se-box::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  margin-left: -7px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid rgba(243, 253, 253, 0.94);
+}
+/* Tabs */
+.se-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 12px 0 4px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.se-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border-radius: 25px;
+  color: #222;
+  cursor: pointer;
+  padding: 8px 15px;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.se-tab.se-active {
+  background: #5aa02a;
   color: #fff;
-  padding: 10px 18px;
-  border-radius: 999px;
+}
+/* Nội dung mỗi tab: ô input 1 dòng + nút Copy (cùng 1 hàng) */
+.se-tabc {
+  display: none;
+  padding: 8px 12px 2px;
+}
+.se-tabc.se-active {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.se-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
   font-size: 13px;
-  max-width: 90vw;
-  text-align: center;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  background: #fff;
+  color: #0f172a;
+}
+.se-copy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 14px;
+  border: 1px solid #cfe0f5;
+  border-radius: 7px;
+  background: #fff;
+  color: #1667d6;
+  cursor: pointer;
+}
+.se-copy:hover {
+  background: #eef5ff;
+}
+@keyframes se-dropdown-show {
+  0% {
+    opacity: 0;
+    margin-top: 2px;
+  }
+  100% {
+    opacity: 1;
+    margin-top: 8px;
+  }
 }
 
 /* ===== Sao đánh giá (nửa sao chính xác) ===== */
@@ -447,44 +463,6 @@
 .rate-note {
   font-size: 12px;
   color: #64748b;
-}
-
-/* ===== Nút Embed / Post ===== */
-.gp-embed-btn,
-.gp-post-btn {
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: 8px;
-  padding: 6px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.gp-embed-btn {
-  background: #cac1a2;
-  color: #4a442f;
-}
-.gp-post-btn {
-  background: #111111;
-  color: #ffffff;
-}
-/* Share: ẩn trên desktop, hiện trên mobile */
-.gp-share-btn {
-  display: none;
-  background: #dc5a00;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: 8px;
-  padding: 6px 12px;
-  align-items: center;
-  gap: 4px;
 }
 
 /* Nút Go to Desktop ẩn trên desktop (chỉ hiện ở media mobile) */

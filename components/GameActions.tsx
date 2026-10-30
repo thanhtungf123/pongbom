@@ -1,175 +1,133 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
- * Các nút chia sẻ ở khung trò chơi:
- *  - PC: nút "Nhúng" mở bảng lấy mã nhúng; nút "Chia sẻ" dùng chia sẻ hệ thống
- *    (Web Share) hoặc copy link.
- *  - MOBILE: nút "Chia sẻ" mở BẢNG như m.twoplayergames.org — có 2 tab
- *    "Chia sẻ" (copy link game) và "</> Nhúng" (copy mã nhúng), mỗi tab có ô
- *    nội dung + nút Copy.
+ * Nút "Chia sẻ" + bảng Chia sẻ/Nhúng — dựng LẠI đúng theo widget gốc của
+ * twoplayergames.org (shareEmbed): bấm nút -> hiện DROPDOWN dạng bong bóng
+ * (có mũi nhọn) với 2 tab "Chia sẻ" / "Nhúng"; mỗi tab là 1 ô input 1 dòng
+ * (link game hoặc mã nhúng iframe) + nút Copy. KHÔNG dùng modal/textarea.
  */
 export default function GameActions({
   slug,
-  title,
 }: {
   slug: string;
-  title: string;
+  title?: string; // (không dùng — widget chỉ cần link/mã nhúng theo slug)
 }) {
   const [origin, setOrigin] = useState("");
-  const [isMobile, setIsMobile] = useState(false);
-  const [panel, setPanel] = useState<null | "share" | "embed">(null);
-  const [copied, setCopied] = useState(false);
-  const [toast, setToast] = useState("");
+  const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<"share" | "embed">("share");
+  const [copied, setCopied] = useState<"" | "share" | "embed">("");
+  const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    const mq = window.matchMedia("(max-width: 820px)");
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
   }, []);
 
+  // Đóng khi bấm ra ngoài / nhấn Esc.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   const pageUrl = origin ? `${origin}/game/${slug}` : "";
-  const embedCode = `<iframe src="${origin}/embed/${slug}" width="800" height="600" style="max-width:100%;border:0;" frameborder="0" scrolling="no" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>`;
+  const embedCode = origin
+    ? `<iframe src="${origin}/embed/${slug}" width="800" height="600" style="max-width:100%;border:0;" frameborder="0" scrolling="no" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe>`
+    : "";
 
-  const flash = (m: string) => {
-    setToast(m);
-    setTimeout(() => setToast(""), 1800);
-  };
-
-  const openPanel = (which: "share" | "embed") => {
-    setPanel(which);
-    setCopied(false);
-  };
-  const closePanel = () => {
-    setPanel(null);
-    setCopied(false);
-  };
-
-  // Copy nội dung của tab đang mở.
-  const copyActive = async () => {
-    const text = panel === "embed" ? embedCode : pageUrl;
+  const copy = async (which: "share" | "embed") => {
+    const text = which === "embed" ? embedCode : pageUrl;
     try {
       await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
+      setCopied(which);
+      setTimeout(() => setCopied(""), 1600);
     } catch {
-      flash("Không copy được — hãy bôi đen và copy thủ công.");
+      /* clipboard bị chặn -> người dùng tự bôi đen (ô đã select sẵn) */
     }
   };
 
-  // Nút "Chia sẻ": mobile -> mở bảng (link + nhúng); PC -> chia sẻ hệ thống/copy.
-  const onShare = async () => {
-    if (isMobile) {
-      openPanel("share");
-      return;
-    }
-    const nav = navigator as Navigator & {
-      share?: (d: { title?: string; url?: string }) => Promise<void>;
-    };
-    if (nav.share) {
-      try {
-        await nav.share({ title, url: pageUrl });
-      } catch {
-        /* người dùng hủy */
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(pageUrl);
-        flash("Đã copy link game!");
-      } catch {
-        flash(pageUrl);
-      }
-    }
+  const toggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setOpen((o) => !o);
   };
 
   return (
-    <>
-      <button
-        type="button"
-        className="gp-embed-btn"
-        onClick={() => openPanel("embed")}
+    <div className="game-page-share-embed" ref={wrapRef}>
+      <a
+        href="#"
+        className={`se-trigger${open ? " open" : ""}`}
+        onClick={toggle}
+        aria-expanded={open}
       >
-        &lt;/&gt; Nhúng
-      </button>
-      <button type="button" className="gp-share-btn" onClick={onShare}>
-        ↗ Chia sẻ
-      </button>
+        <span className="monochrome-share" /> Chia sẻ
+      </a>
 
-      {panel && (
-        <div className="share-sheet-overlay" onClick={closePanel}>
-          <div className="share-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="share-sheet-head">
-              <div className="share-tabs">
-                <button
-                  type="button"
-                  className={`share-tab${panel === "share" ? " active" : ""}`}
-                  onClick={() => openPanel("share")}
-                >
-                  ↗ Chia sẻ
-                </button>
-                <button
-                  type="button"
-                  className={`share-tab${panel === "embed" ? " active" : ""}`}
-                  onClick={() => openPanel("embed")}
-                >
-                  &lt;/&gt; Nhúng
-                </button>
-              </div>
+      {open && (
+        <div className="se-box">
+          <div className="se-panel">
+            <ul className="se-tabs">
+              <li
+                className={`se-tab${tab === "share" ? " se-active" : ""}`}
+                onClick={() => setTab("share")}
+              >
+                <span className="monochrome-share" /> Chia sẻ
+              </li>
+              <li
+                className={`se-tab${tab === "embed" ? " se-active" : ""}`}
+                onClick={() => setTab("embed")}
+              >
+                <span className="monochrome-embed-close" /> Nhúng
+              </li>
+            </ul>
+
+            <div className={`se-tabc${tab === "share" ? " se-active" : ""}`}>
+              <input
+                type="text"
+                className="se-input"
+                readOnly
+                value={pageUrl}
+                onFocus={(e) => e.currentTarget.select()}
+              />
               <button
                 type="button"
-                className="share-sheet-close"
-                onClick={closePanel}
-                aria-label="Đóng"
+                className="se-copy"
+                onClick={() => copy("share")}
               >
-                ×
+                <span className="monochrome-copy" />{" "}
+                {copied === "share" ? "Đã copy" : "Copy"}
               </button>
             </div>
 
-            {panel === "share" ? (
-              <>
-                <p className="share-sheet-desc">
-                  Sao chép link để chia sẻ game này:
-                </p>
-                <div className="share-copy-row">
-                  <input
-                    className="share-link"
-                    readOnly
-                    value={pageUrl}
-                    onFocus={(e) => e.currentTarget.select()}
-                  />
-                  <button type="button" className="btn-copy" onClick={copyActive}>
-                    {copied ? "✓ Đã copy" : "Copy"}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="share-sheet-desc">
-                  Sao chép mã nhúng dưới đây và dán vào website của bạn:
-                </p>
-                <textarea
-                  className="embed-code"
-                  readOnly
-                  rows={4}
-                  value={embedCode}
-                  onFocus={(e) => e.currentTarget.select()}
-                />
-                <div className="share-copy-row share-copy-row-right">
-                  <button type="button" className="btn-copy" onClick={copyActive}>
-                    {copied ? "✓ Đã copy" : "Copy mã"}
-                  </button>
-                </div>
-              </>
-            )}
+            <div className={`se-tabc${tab === "embed" ? " se-active" : ""}`}>
+              <input
+                type="text"
+                className="se-input"
+                readOnly
+                value={embedCode}
+                onFocus={(e) => e.currentTarget.select()}
+              />
+              <button
+                type="button"
+                className="se-copy"
+                onClick={() => copy("embed")}
+              >
+                <span className="monochrome-copy" />{" "}
+                {copied === "embed" ? "Đã copy" : "Copy"}
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {toast && <div className="share-toast">{toast}</div>}
-    </>
+    </div>
   );
 }
