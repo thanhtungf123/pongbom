@@ -436,6 +436,67 @@
   color: #94a3b8;
 }
 
+/* Thanh lọc + phân trang danh sách admin */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.admin-filters input,
+.admin-filters select {
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid #d7dee8;
+  border-radius: 8px;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.admin-filters input:focus,
+.admin-filters select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+.admin-f-search {
+  flex: 1 1 240px;
+  min-width: 200px;
+}
+.admin-f-select {
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+.admin-f-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+.admin-f-date input {
+  padding: 7px 10px;
+}
+.admin-f-clear {
+  flex: 0 0 auto;
+}
+.admin-empty-row {
+  text-align: center;
+  padding: 22px 14px;
+}
+.admin-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+.admin-pager-info {
+  font-size: 13px;
+  color: #64748b;
+}
+
 /* Forms */
 .form-panel {
   background: #fff;

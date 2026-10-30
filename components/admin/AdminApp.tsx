@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type {
   Category,
   FooterLink,
@@ -49,6 +56,164 @@ async function api(url: string, method: string, body?: unknown) {
   const d = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(d.error || "Có lỗi xảy ra");
   return d;
+}
+
+/* ------------- Lọc tìm kiếm + phân trang cho các bảng admin -------------
+   Dùng chung cho tab Games / Category / Trang: lọc theo từ khóa (client) rồi
+   chia trang 12 mục/trang. */
+const ADMIN_PAGE_SIZE = 12;
+
+function useAdminPaged<T>(
+  items: T[],
+  searchText: (it: T) => string,
+  opts?: {
+    getDate?: (it: T) => string | number | Date | undefined; // createdAt
+    extra?: (it: T) => boolean; // bộ lọc phụ (vd theo category)
+    extraKey?: string; // khóa để biết khi bộ lọc phụ đổi -> tính lại
+  }
+) {
+  const [q, setQ] = useState("");
+  const [from, setFrom] = useState(""); // yyyy-mm-dd
+  const [to, setTo] = useState("");
+  const [page, setPage] = useState(1);
+  const needle = q.trim().toLowerCase();
+  const getDate = opts?.getDate;
+  const extra = opts?.extra;
+  const extraKey = opts?.extraKey ?? "";
+
+  const filtered = useMemo(() => {
+    const fromT = from ? new Date(`${from}T00:00:00`).getTime() : null;
+    const toT = to ? new Date(`${to}T23:59:59.999`).getTime() : null;
+    return items.filter((it) => {
+      if (needle && !searchText(it).toLowerCase().includes(needle)) return false;
+      if ((fromT != null || toT != null) && getDate) {
+        const raw = getDate(it);
+        const t = raw ? new Date(raw).getTime() : NaN;
+        if (Number.isNaN(t)) return false;
+        if (fromT != null && t < fromT) return false;
+        if (toT != null && t > toT) return false;
+      }
+      if (extra && !extra(it)) return false;
+      return true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, needle, from, to, extraKey]);
+
+  // Đổi bất kỳ bộ lọc nào -> về trang 1.
+  useEffect(() => {
+    setPage(1);
+  }, [needle, from, to, extraKey]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_PAGE_SIZE));
+  const curPage = Math.min(page, totalPages);
+  const paged = useMemo(
+    () =>
+      filtered.slice((curPage - 1) * ADMIN_PAGE_SIZE, curPage * ADMIN_PAGE_SIZE),
+    [filtered, curPage]
+  );
+  const clear = () => {
+    setQ("");
+    setFrom("");
+    setTo("");
+  };
+  return {
+    q,
+    setQ,
+    from,
+    setFrom,
+    to,
+    setTo,
+    clear,
+    page: curPage,
+    setPage,
+    totalPages,
+    paged,
+    matchCount: filtered.length,
+  };
+}
+
+function AdminFilters({
+  q,
+  onQ,
+  from,
+  onFrom,
+  to,
+  onTo,
+  onClear,
+  searchPlaceholder,
+  extraActive,
+  children,
+}: {
+  q: string;
+  onQ: (v: string) => void;
+  from: string;
+  onFrom: (v: string) => void;
+  to: string;
+  onTo: (v: string) => void;
+  onClear: () => void;
+  searchPlaceholder?: string;
+  extraActive?: boolean; // bộ lọc phụ (category) đang bật -> hiện nút "Xóa lọc"
+  children?: ReactNode; // chèn thêm control (vd select category)
+}) {
+  const active = !!(q || from || to || extraActive);
+  return (
+    <div className="admin-filters">
+      <input
+        className="admin-f-search"
+        type="search"
+        value={q}
+        onChange={(e) => onQ(e.target.value)}
+        placeholder={searchPlaceholder || "Tìm kiếm…"}
+      />
+      {children}
+      <label className="admin-f-date">
+        <span>Từ</span>
+        <input type="date" value={from} onChange={(e) => onFrom(e.target.value)} />
+      </label>
+      <label className="admin-f-date">
+        <span>Đến</span>
+        <input type="date" value={to} onChange={(e) => onTo(e.target.value)} />
+      </label>
+      {active && (
+        <button className="btn btn-sm admin-f-clear" onClick={onClear}>
+          Xóa lọc
+        </button>
+      )}
+    </div>
+  );
+}
+
+function AdminPager({
+  page,
+  totalPages,
+  onPage,
+}: {
+  page: number;
+  totalPages: number;
+  onPage: (p: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+  return (
+    <div className="admin-pager">
+      <button
+        className="btn btn-sm"
+        disabled={page <= 1}
+        onClick={() => onPage(page - 1)}
+      >
+        ‹ Trước
+      </button>
+      <span className="admin-pager-info">
+        Trang {page}/{totalPages}
+      </span>
+      <button
+        className="btn btn-sm"
+        disabled={page >= totalPages}
+        onClick={() => onPage(page + 1)}
+      >
+        Sau ›
+      </button>
+    </div>
+  );
 }
 
 /* ------------------------- small UI pieces ------------------------- */
@@ -1076,11 +1241,27 @@ function CategoriesTab({
   }, []);
   useEffect(load, [load]);
 
-  const reorder = async (from: number, to: number) => {
-    if (to < 0 || to >= cats.length) return;
+  const {
+    q,
+    setQ,
+    from,
+    setFrom,
+    to,
+    setTo,
+    clear,
+    page,
+    setPage,
+    totalPages,
+    paged,
+  } = useAdminPaged(cats, (c) => `${c.label || ""} ${c.key || ""}`, {
+    getDate: (c) => c.createdAt,
+  });
+
+  const reorder = async (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= cats.length) return;
     const arr = [...cats];
-    const [m] = arr.splice(from, 1);
-    arr.splice(to, 0, m);
+    const [m] = arr.splice(fromIdx, 1);
+    arr.splice(toIdx, 0, m);
     setCats(arr);
     await api("/api/categories", "POST", { reorder: arr.map((c) => c.key) });
   };
@@ -1111,6 +1292,16 @@ function CategoriesTab({
           + Thêm category
         </button>
       </div>
+      <AdminFilters
+        q={q}
+        onQ={setQ}
+        from={from}
+        onFrom={setFrom}
+        to={to}
+        onTo={setTo}
+        onClear={clear}
+        searchPlaceholder="Tìm category theo tên…"
+      />
       <table className="admin-table">
         <thead>
           <tr>
@@ -1124,11 +1315,32 @@ function CategoriesTab({
           </tr>
         </thead>
         <tbody>
-          {cats.map((c, i) => (
+          {paged.length === 0 && (
+            <tr>
+              <td colSpan={7} className="muted admin-empty-row">
+                Không tìm thấy category nào.
+              </td>
+            </tr>
+          )}
+          {paged.map((c) => {
+            const i = cats.indexOf(c); // chỉ số trong mảng gốc -> sắp xếp đúng
+            return (
             <tr key={c.key}>
               <td className="reorder">
-                <button className="btn btn-xs" onClick={() => reorder(i, i - 1)}>↑</button>
-                <button className="btn btn-xs" onClick={() => reorder(i, i + 1)}>↓</button>
+                <button
+                  className="btn btn-xs"
+                  disabled={!!(q || from || to)}
+                  onClick={() => reorder(i, i - 1)}
+                >
+                  ↑
+                </button>
+                <button
+                  className="btn btn-xs"
+                  disabled={!!(q || from || to)}
+                  onClick={() => reorder(i, i + 1)}
+                >
+                  ↓
+                </button>
               </td>
               <td>
                 {c.icon?.startsWith("monochrome-") ? (
@@ -1166,9 +1378,11 @@ function CategoriesTab({
                 </button>
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
+      <AdminPager page={page} totalPages={totalPages} onPage={setPage} />
     </div>
   );
 }
@@ -1616,6 +1830,35 @@ function GamesTab({
   }, []);
   useEffect(load, [load]);
 
+  const [catFilter, setCatFilter] = useState("");
+  // Danh sách category có game (gom từ chính danh sách game) -> đổ vào select lọc.
+  const allCats = useMemo(
+    () =>
+      Array.from(new Set(games.flatMap((g) => g.categories || []))).sort((a, b) =>
+        a.localeCompare(b)
+      ),
+    [games]
+  );
+  const {
+    q,
+    setQ,
+    from,
+    setFrom,
+    to,
+    setTo,
+    clear,
+    page,
+    setPage,
+    totalPages,
+    paged,
+  } = useAdminPaged(games, (g) => `${g.title || ""} ${g.slug || ""}`, {
+    getDate: (g) => g.createdAt,
+    extra: catFilter
+      ? (g) => (g.categories || []).includes(catFilter)
+      : undefined,
+    extraKey: catFilter,
+  });
+
   if (editing !== null)
     return (
       <GameForm
@@ -1642,6 +1885,33 @@ function GamesTab({
           + Thêm game
         </button>
       </div>
+      <AdminFilters
+        q={q}
+        onQ={setQ}
+        from={from}
+        onFrom={setFrom}
+        to={to}
+        onTo={setTo}
+        onClear={() => {
+          clear();
+          setCatFilter("");
+        }}
+        extraActive={!!catFilter}
+        searchPlaceholder="Tìm game theo tên hoặc slug…"
+      >
+        <select
+          className="admin-f-select"
+          value={catFilter}
+          onChange={(e) => setCatFilter(e.target.value)}
+        >
+          <option value="">Tất cả category</option>
+          {allCats.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </AdminFilters>
       <table className="admin-table">
         <thead>
           <tr>
@@ -1653,7 +1923,14 @@ function GamesTab({
           </tr>
         </thead>
         <tbody>
-          {games.map((g) => (
+          {paged.length === 0 && (
+            <tr>
+              <td colSpan={5} className="muted admin-empty-row">
+                Không tìm thấy game nào.
+              </td>
+            </tr>
+          )}
+          {paged.map((g) => (
             <tr key={g.slug}>
               <td>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1690,6 +1967,7 @@ function GamesTab({
           ))}
         </tbody>
       </table>
+      <AdminPager page={page} totalPages={totalPages} onPage={setPage} />
     </div>
   );
 }
@@ -1709,11 +1987,29 @@ function PagesTab({
   }, []);
   useEffect(load, [load]);
 
-  const reorder = async (from: number, to: number) => {
-    if (to < 0 || to >= pages.length) return;
+  const {
+    q,
+    setQ,
+    from,
+    setFrom,
+    to,
+    setTo,
+    clear,
+    page,
+    setPage,
+    totalPages,
+    paged,
+  } = useAdminPaged(
+    pages,
+    (p) => `${p.h1 || ""} ${p.titleTag || ""} ${p.slug || ""}`,
+    { getDate: (p) => p.createdAt }
+  );
+
+  const reorder = async (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= pages.length) return;
     const arr = [...pages];
-    const [m] = arr.splice(from, 1);
-    arr.splice(to, 0, m);
+    const [m] = arr.splice(fromIdx, 1);
+    arr.splice(toIdx, 0, m);
     setPages(arr);
     await api("/api/pages", "POST", { reorder: arr.map((p) => p.slug) });
   };
@@ -1744,6 +2040,16 @@ function PagesTab({
           + Tạo trang
         </button>
       </div>
+      <AdminFilters
+        q={q}
+        onQ={setQ}
+        from={from}
+        onFrom={setFrom}
+        to={to}
+        onTo={setTo}
+        onClear={clear}
+        searchPlaceholder="Tìm trang theo tiêu đề hoặc slug…"
+      />
       <table className="admin-table">
         <thead>
           <tr>
@@ -1755,13 +2061,30 @@ function PagesTab({
           </tr>
         </thead>
         <tbody>
-          {pages.map((p, i) => (
+          {paged.length === 0 && (
+            <tr>
+              <td colSpan={5} className="muted admin-empty-row">
+                Không tìm thấy trang nào.
+              </td>
+            </tr>
+          )}
+          {paged.map((p) => {
+            const gi = pages.indexOf(p); // chỉ số trong mảng gốc -> sắp xếp đúng
+            return (
             <tr key={p.slug}>
               <td className="reorder">
-                <button className="btn btn-xs" onClick={() => reorder(i, i - 1)}>
+                <button
+                  className="btn btn-xs"
+                  disabled={!!(q || from || to)}
+                  onClick={() => reorder(gi, gi - 1)}
+                >
                   ↑
                 </button>
-                <button className="btn btn-xs" onClick={() => reorder(i, i + 1)}>
+                <button
+                  className="btn btn-xs"
+                  disabled={!!(q || from || to)}
+                  onClick={() => reorder(gi, gi + 1)}
+                >
                   ↓
                 </button>
               </td>
@@ -1793,9 +2116,11 @@ function PagesTab({
                 </button>
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
+      <AdminPager page={page} totalPages={totalPages} onPage={setPage} />
     </div>
   );
 }

@@ -28,6 +28,7 @@ export type Game = {
   robotsIndex?: boolean;
   robotsFollow?: boolean;
   order?: number;
+  createdAt?: string; // thời điểm tạo (chỉ trả về cho admin — lọc theo ngày)
 };
 
 export type Page = {
@@ -42,6 +43,7 @@ export type Page = {
   showInHeader: boolean;
   visible: boolean;
   order: number;
+  createdAt?: string; // thời điểm tạo (chỉ trả về cho admin — lọc theo ngày)
 };
 
 export type FooterLink = { label: string; url: string };
@@ -89,6 +91,7 @@ export type Category = {
   metaDescription?: string; // meta description SEO
   visible: boolean;
   order: number;
+  createdAt?: string; // thời điểm tạo (chỉ trả về cho admin — lọc theo ngày)
 };
 
 export type StatsSummary = {

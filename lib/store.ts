@@ -23,6 +23,10 @@ import { categorySlug } from "./slug";
 const TAG = { site: "site", categories: "categories", games: "games", pages: "pages" } as const;
 const TTL = 60;
 
+// Projection cho danh sách ADMIN: giữ `createdAt` (để lọc theo ngày tạo) và
+// `key`; chỉ bỏ field nội bộ Mongo. (CLEAN thường loại bỏ createdAt.)
+const CLEAN_ADMIN = { _id: 0, __v: 0, updatedAt: 0 } as const;
+
 /* ===================== SITE ===================== */
 
 const DEFAULT_SITE: SiteSettings = {
@@ -63,10 +67,15 @@ export async function saveSite(site: SiteSettings): Promise<void> {
 
 /* ===================== GAMES ===================== */
 
+// Danh sách game cho ADMIN (chỉ /api/games dùng) — game MỚI thêm lên ĐẦU
+// (sort theo thời điểm tạo giảm dần). Thứ tự hiển thị công khai KHÔNG đổi
+// (public dùng getVisibleGamesPaged… sắp theo `order`).
 export const getGames = unstable_cache(
   async (): Promise<Game[]> => {
     await dbConnect();
-    return GameModel.find({}, CLEAN).sort({ order: 1 }).lean() as unknown as Game[];
+    return GameModel.find({}, CLEAN_ADMIN)
+      .sort({ createdAt: -1 })
+      .lean() as unknown as Game[];
   },
   ["store:getGames"],
   { tags: [TAG.games], revalidate: TTL }
@@ -316,7 +325,9 @@ export async function getAllCategories(): Promise<string[]> {
 export const getPages = unstable_cache(
   async (): Promise<Page[]> => {
     await dbConnect();
-    return PageModel.find({}, CLEAN).sort({ order: 1 }).lean() as unknown as Page[];
+    return PageModel.find({}, CLEAN_ADMIN)
+      .sort({ order: 1 })
+      .lean() as unknown as Page[];
   },
   ["store:getPages"],
   { tags: [TAG.pages], revalidate: TTL }
@@ -401,13 +412,11 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { key: "one-player", label: "1 Player", href: "/?category=1 Player", icon: "monochrome-category-9", visible: true, order: 8 },
 ];
 
-// Category cần giữ field `key` (CLEAN loại bỏ key cho Site nên không dùng ở đây).
-const CLEAN_CAT = { _id: 0, __v: 0, createdAt: 0, updatedAt: 0 } as const;
-
 export const getCategories = unstable_cache(
   async (): Promise<Category[]> => {
     await dbConnect();
-    const rows = (await CategoryModel.find({}, CLEAN_CAT)
+    // CLEAN_ADMIN giữ `key` (cần cho reorder/sửa) và `createdAt` (admin lọc ngày).
+    const rows = (await CategoryModel.find({}, CLEAN_ADMIN)
       .sort({ order: 1 })
       .lean()) as unknown as Category[];
     return rows.length ? rows : DEFAULT_CATEGORIES;
@@ -495,10 +504,20 @@ export const getGamesByCategoryPaged = unstable_cache(
 export async function upsertCategory(cat: Category): Promise<void> {
   await dbConnect();
   const existing = await CategoryModel.findOne({ key: cat.key }).lean();
-  const order =
-    cat.order ??
-    ((existing as { order?: number } | null)?.order ??
-      (await CategoryModel.countDocuments()));
+  // Category MỚI -> đưa lên ĐẦU danh sách (order nhỏ hơn mọi category hiện có)
+  // để admin thấy ngay; vẫn có thể kéo xếp lại sau. Sửa category cũ -> giữ order.
+  let newOrder: number;
+  if (cat.order != null) {
+    newOrder = cat.order;
+  } else if (existing) {
+    newOrder = (existing as { order?: number }).order ?? 0;
+  } else {
+    const first = (await CategoryModel.findOne({}, { order: 1, _id: 0 })
+      .sort({ order: 1 })
+      .lean()) as { order?: number } | null;
+    newOrder = (first?.order ?? 0) - 1;
+  }
+  const order = newOrder;
   await CategoryModel.updateOne(
     { key: cat.key },
     { $set: { ...cat, order } },

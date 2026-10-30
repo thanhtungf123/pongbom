@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import GameCard from "./GameCard";
+import LoadMoreTile from "./LoadMoreTile";
 import type { Game } from "@/lib/types";
 
 // Hiển thị 1 KHỐI game trang chủ.
@@ -37,24 +38,14 @@ export default function HomeSlider({
   // Lưới 3 cột: hiện 96 game, còn game thì nút "Xem thêm" lộ thêm 96.
   if (mounted && isMobile) {
     return (
-      <>
-        <ul className="game-list">
-          {games.slice(0, shown).map((g) => (
-            <GameCard key={g.slug} game={g} />
-          ))}
-        </ul>
+      <ul className="game-list">
+        {games.slice(0, shown).map((g) => (
+          <GameCard key={g.slug} game={g} />
+        ))}
         {shown < games.length && (
-          <div className="load-more-wrap">
-            <button
-              type="button"
-              className="load-more"
-              onClick={() => setShown((s) => s + MOBILE_BATCH)}
-            >
-              Xem thêm game
-            </button>
-          </div>
+          <LoadMoreTile onClick={() => setShown((s) => s + MOBILE_BATCH)} />
         )}
-      </>
+      </ul>
     );
   }
 
