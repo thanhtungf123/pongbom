@@ -299,15 +299,15 @@
   width: min(360px, 92vw);
   animation: se-dropdown-show 0.18s ease-out;
 }
+/* Nền trong mờ (pale cyan) đúng bản gốc — KHÔNG phải khung trắng đậm */
 .se-panel {
   position: relative;
-  background: rgba(243, 253, 253, 0.94);
+  background: rgba(240, 255, 255, 0.5);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-radius: 10px;
-  box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
-  padding: 4px 5px 12px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  padding: 5px;
 }
 .se-box::before {
   content: "";
@@ -317,16 +317,16 @@
   margin-left: -7px;
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
-  border-bottom: 7px solid rgba(243, 253, 253, 0.94);
+  border-bottom: 7px solid #c6dfdf;
 }
-/* Tabs */
+/* Tabs: chữ xám in hoa, tab đang chọn = nền xám nhạt (như bản gốc) */
 .se-tabs {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   list-style: none;
   margin: 0;
-  padding: 12px 0 4px;
+  padding: 15px 0 0;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -338,36 +338,37 @@
   border-radius: 25px;
   color: #222;
   cursor: pointer;
-  padding: 8px 15px;
+  padding: 10px;
   font-weight: 700;
   font-size: 12px;
   text-transform: uppercase;
 }
 .se-tab.se-active {
-  background: #5aa02a;
-  color: #fff;
+  background: rgba(0, 0, 0, 0.1);
+  color: #222;
 }
 /* Nội dung mỗi tab: ô input 1 dòng + nút Copy (cùng 1 hàng) */
 .se-tabc {
   display: none;
-  padding: 8px 12px 2px;
+  padding: 15px;
 }
 .se-tabc.se-active {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
 }
 .se-input {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
   font-size: 13px;
-  padding: 8px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px;
+  padding: 5px 7px;
+  white-space: nowrap;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
   background: #fff;
-  color: #0f172a;
+  color: #222;
 }
 .se-copy {
   flex: 0 0 auto;
@@ -376,16 +377,15 @@
   gap: 5px;
   white-space: nowrap;
   font-size: 13px;
-  font-weight: 700;
-  padding: 8px 14px;
-  border: 1px solid #cfe0f5;
-  border-radius: 7px;
-  background: #fff;
-  color: #1667d6;
+  padding: 5px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  background: #e9e9e9;
+  color: #222;
   cursor: pointer;
 }
 .se-copy:hover {
-  background: #eef5ff;
+  background: #dedede;
 }
 @keyframes se-dropdown-show {
   0% {
