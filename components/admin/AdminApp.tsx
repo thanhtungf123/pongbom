@@ -1325,59 +1325,59 @@ function CategoriesTab({
           {paged.map((c) => {
             const i = cats.indexOf(c); // chỉ số trong mảng gốc -> sắp xếp đúng
             return (
-            <tr key={c.key}>
-              <td className="reorder">
-                <button
-                  className="btn btn-xs"
-                  disabled={!!(q || from || to)}
-                  onClick={() => reorder(i, i - 1)}
-                >
-                  ↑
-                </button>
-                <button
-                  className="btn btn-xs"
-                  disabled={!!(q || from || to)}
-                  onClick={() => reorder(i, i + 1)}
-                >
-                  ↓
-                </button>
-              </td>
-              <td>
-                {c.icon?.startsWith("monochrome-") ? (
-                  <span className={`cat-icon ${c.icon}`} style={{ color: "#386a81" }} />
-                ) : (
-                  <span style={{ fontSize: 20 }}>{c.icon || "🎲"}</span>
-                )}
-              </td>
-              <td>{c.label}</td>
-              <td>
-                <span className="count-badge">{counts[c.label] || 0}</span>
-              </td>
-              <td className="muted">{categoryHref(c)}</td>
-              <td>
-                <button
-                  className={`pill ${c.visible !== false ? "pill-on" : "pill-off"}`}
-                  onClick={() => toggle(c)}
-                >
-                  {c.visible !== false ? "Bật" : "Tắt"}
-                </button>
-              </td>
-              <td className="row-actions">
-                <button className="btn btn-sm" onClick={() => setEditing(c)}>Sửa</button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={() =>
-                    confirm(`Xóa category "${c.label}"?`, async () => {
-                      await api(`/api/categories/${c.key}`, "DELETE");
-                      toast("Đã xóa category");
-                      load();
-                    })
-                  }
-                >
-                  Xóa
-                </button>
-              </td>
-            </tr>
+              <tr key={c.key}>
+                <td className="reorder">
+                  <button
+                    className="btn btn-xs"
+                    disabled={!!(q || from || to)}
+                    onClick={() => reorder(i, i - 1)}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    className="btn btn-xs"
+                    disabled={!!(q || from || to)}
+                    onClick={() => reorder(i, i + 1)}
+                  >
+                    ↓
+                  </button>
+                </td>
+                <td>
+                  {c.icon?.startsWith("monochrome-") ? (
+                    <span className={`cat-icon ${c.icon}`} style={{ color: "#386a81" }} />
+                  ) : (
+                    <span style={{ fontSize: 20 }}>{c.icon || "🎲"}</span>
+                  )}
+                </td>
+                <td>{c.label}</td>
+                <td>
+                  <span className="count-badge">{counts[c.label] || 0}</span>
+                </td>
+                <td className="muted">{categoryHref(c)}</td>
+                <td>
+                  <button
+                    className={`pill ${c.visible !== false ? "pill-on" : "pill-off"}`}
+                    onClick={() => toggle(c)}
+                  >
+                    {c.visible !== false ? "Bật" : "Tắt"}
+                  </button>
+                </td>
+                <td className="row-actions">
+                  <button className="btn btn-sm" onClick={() => setEditing(c)}>Sửa</button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() =>
+                      confirm(`Xóa category "${c.label}"?`, async () => {
+                        await api(`/api/categories/${c.key}`, "DELETE");
+                        toast("Đã xóa category");
+                        load();
+                      })
+                    }
+                  >
+                    Xóa
+                  </button>
+                </td>
+              </tr>
             );
           })}
         </tbody>
@@ -1680,7 +1680,7 @@ function HomeTab({ toast }: { toast: (m: string) => void }) {
             </Field>
             <Field
               label="Số game / trang"
-              hint="Số game hiển thị mỗi trang. Nếu category có nhiều hơn -> tự phân trang (carousel ‹ • ›). Chuẩn: 21 (3 hàng × 7)."
+              hint="Số game hiển thị mỗi trang)."
             >
               <input
                 type="number"
@@ -2071,51 +2071,51 @@ function PagesTab({
           {paged.map((p) => {
             const gi = pages.indexOf(p); // chỉ số trong mảng gốc -> sắp xếp đúng
             return (
-            <tr key={p.slug}>
-              <td className="reorder">
-                <button
-                  className="btn btn-xs"
-                  disabled={!!(q || from || to)}
-                  onClick={() => reorder(gi, gi - 1)}
-                >
-                  ↑
-                </button>
-                <button
-                  className="btn btn-xs"
-                  disabled={!!(q || from || to)}
-                  onClick={() => reorder(gi, gi + 1)}
-                >
-                  ↓
-                </button>
-              </td>
-              <td>{p.h1 || p.titleTag}</td>
-              <td className="muted">/{p.slug}</td>
-              <td>
-                <button
-                  className={`pill ${p.visible ? "pill-on" : "pill-off"}`}
-                  onClick={() => toggle(p)}
-                >
-                  {p.visible ? "Bật" : "Tắt"}
-                </button>
-              </td>
-              <td className="row-actions">
-                <button className="btn btn-sm" onClick={() => setEditing(p)}>
-                  Sửa
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={() =>
-                    confirm(`Xóa trang "${p.h1}"?`, async () => {
-                      await api(`/api/pages/${p.slug}`, "DELETE");
-                      toast("Đã xóa trang");
-                      load();
-                    })
-                  }
-                >
-                  Xóa
-                </button>
-              </td>
-            </tr>
+              <tr key={p.slug}>
+                <td className="reorder">
+                  <button
+                    className="btn btn-xs"
+                    disabled={!!(q || from || to)}
+                    onClick={() => reorder(gi, gi - 1)}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    className="btn btn-xs"
+                    disabled={!!(q || from || to)}
+                    onClick={() => reorder(gi, gi + 1)}
+                  >
+                    ↓
+                  </button>
+                </td>
+                <td>{p.h1 || p.titleTag}</td>
+                <td className="muted">/{p.slug}</td>
+                <td>
+                  <button
+                    className={`pill ${p.visible ? "pill-on" : "pill-off"}`}
+                    onClick={() => toggle(p)}
+                  >
+                    {p.visible ? "Bật" : "Tắt"}
+                  </button>
+                </td>
+                <td className="row-actions">
+                  <button className="btn btn-sm" onClick={() => setEditing(p)}>
+                    Sửa
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() =>
+                      confirm(`Xóa trang "${p.h1}"?`, async () => {
+                        await api(`/api/pages/${p.slug}`, "DELETE");
+                        toast("Đã xóa trang");
+                        load();
+                      })
+                    }
+                  >
+                    Xóa
+                  </button>
+                </td>
+              </tr>
             );
           })}
         </tbody>
