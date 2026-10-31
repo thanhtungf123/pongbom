@@ -13,13 +13,16 @@
 .home-section {
   margin-bottom: 10px;
 }
+
 /* Tiêu đề khối (h2) trông giống h1 "Top Games" gốc */
 .trending-title h2 {
   color: var(--title-red);
 }
+
 .trending-title h2 span.icon {
   font-size: 24px;
 }
+
 .home-section-empty {
   grid-column: 1 / -1;
   list-style: none;
@@ -27,20 +30,24 @@
   color: #4a7a1f;
   font-size: 14px;
 }
+
 .home-content {
   margin: 20px 0 10px;
   padding: 0 10px 10px;
   color: #2b4b14;
   line-height: 1.6;
 }
+
 .home-content h2,
 .home-content h3 {
   margin: 14px 0 8px;
   color: #1f3a0e;
 }
+
 .home-content p {
   margin: 0 0 12px;
 }
+
 .home-content a {
   color: #477a27;
   text-decoration: underline;
@@ -60,19 +67,24 @@
   text-decoration: none;
   font-weight: 700;
 }
+
 .logo .brand-faces {
   font-size: 30px;
 }
+
 .logo .brand-word {
   font-size: 36px;
   letter-spacing: -0.5px;
 }
+
 .logo .brand-pong {
   color: #7dbc00;
 }
+
 .logo .brand-bom {
   color: #db5910;
 }
+
 .logo .brand-dot {
   color: #0692c9;
   font-size: 15px;
@@ -85,6 +97,7 @@
 .game {
   width: 100% !important;
 }
+
 #game-container {
   width: 100% !important;
   max-width: 100% !important;
@@ -92,6 +105,7 @@
   position: relative;
   display: block;
 }
+
 /* Hộp tỉ lệ 16:9 bằng padding-bottom (KHÔNG aspect-ratio -> tránh bug chạm iOS) */
 .game-screen {
   position: relative;
@@ -102,7 +116,8 @@
   background: #000;
   border-radius: 10px 10px 0 0;
 }
-.game-screen > #game-frame {
+
+.game-screen>#game-frame {
   position: absolute !important;
   top: 0;
   left: 0;
@@ -111,9 +126,11 @@
   display: block;
   border: 0;
 }
+
 .game-bottom-bar {
   display: flex;
 }
+
 /* Poster (trước khi nạp game): nền xanh nhạt + thumbnail/video NHỎ ở giữa + tên
    game + nút Play — bố cục giống twoplayergames.org */
 .play-poster {
@@ -131,6 +148,7 @@
   padding: 20px;
   background: #d7f0f7;
 }
+
 /* Khung thumbnail / video nhỏ, vuông, bo góc */
 .play-poster-box {
   width: 116px;
@@ -141,6 +159,7 @@
   box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.3);
   flex: none;
 }
+
 .play-poster-thumb,
 .play-poster-video {
   width: 100%;
@@ -148,6 +167,7 @@
   object-fit: cover;
   display: block;
 }
+
 /* Tên game dưới thumbnail */
 .play-poster-title {
   color: #3f3f3f;
@@ -156,6 +176,7 @@
   line-height: 1.2;
   text-align: center;
 }
+
 /* Nút Play đỏ bo tròn, có icon tay cầm */
 .play-poster-btn {
   display: inline-flex;
@@ -170,16 +191,19 @@
   box-shadow: 0 6px 16px -4px rgba(227, 91, 80, 0.55);
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
+
 .play-poster:hover .play-poster-btn,
 .play-poster:active .play-poster-btn {
   background: #d94c41;
   transform: scale(1.05);
   box-shadow: 0 10px 22px -4px rgba(227, 91, 80, 0.7);
 }
+
 .play-poster-btn svg {
   width: 26px;
   height: 20px;
 }
+
 /* "Tắt đèn": phủ tối toàn trang, nâng khung game lên trên lớp phủ */
 .lights-overlay {
   position: fixed;
@@ -188,10 +212,12 @@
   z-index: 40;
   cursor: pointer;
 }
+
 .game.lights-dim #game-container {
   position: relative;
   z-index: 41;
 }
+
 /* Fullscreen (Android native + iOS pseudo).
    #game-container phủ KÍN viewport (inset:0) & nền đen -> ẩn hẳn trang phía dưới.
    Phần xoay/đo kích thước do JS áp lên .game-screen bên trong. */
@@ -206,18 +232,23 @@
   background: #000;
   overflow: hidden;
 }
+
 #game-container.is-fs .game-screen {
   position: absolute;
-  inset: 0; /* mặc định phủ kín; JS sẽ override top/left/width/height khi cần */
+  inset: 0;
+  /* mặc định phủ kín; JS sẽ override top/left/width/height khi cần */
   padding-bottom: 0 !important;
   border-radius: 0;
 }
+
 #game-container.is-fs .game-bottom-bar {
   display: none !important;
 }
+
 .game-full-screen {
   cursor: pointer;
 }
+
 .fs-exit {
   position: absolute;
   z-index: 10000;
@@ -236,6 +267,7 @@
   font-size: 14px;
   cursor: pointer;
 }
+
 .fs-exit svg {
   width: 18px;
   height: 18px;
@@ -248,6 +280,7 @@
   z-index: 99999;
   background: #000;
 }
+
 .embed-frame {
   width: 100%;
   height: 100%;
@@ -267,6 +300,7 @@
   font-family: "Varela Round", sans-serif;
   font-weight: 400;
 }
+
 /* Nút "Share" (cam) */
 .se-trigger {
   display: inline-flex;
@@ -285,18 +319,22 @@
   -webkit-user-select: none;
   user-select: none;
 }
+
 .se-trigger:hover,
 .se-trigger.open {
   background: #da760f;
 }
+
 .se-trigger .monochrome-share {
   position: relative;
   top: 1px;
 }
+
 /* Mặc định (mobile): chỉ hiện nút Share; ẩn Embed (chỉ dùng cho PC) */
 .se-trigger-embed {
   display: none;
 }
+
 /* Bảng xổ xuống (INLINE, đẩy nội dung xuống) */
 .se-box {
   position: relative;
@@ -304,6 +342,7 @@
   width: min(360px, 92vw);
   animation: se-dropdown-show 0.18s ease-out;
 }
+
 /* Mũi nhọn nhô lên (hình thoi) — CANH GIỮA, ngay dưới nút Share */
 .se-box::before {
   content: "";
@@ -316,6 +355,7 @@
   transform: translateX(-50%) rotate(45deg);
   border-radius: 2px;
 }
+
 /* Nền MỜ nhẹ (frosted) — chỉ sẫm rất nhẹ nền xanh phía sau, hơi mờ & sáng */
 .se-panel {
   position: relative;
@@ -326,6 +366,7 @@
   box-shadow: 0 8px 22px -12px rgba(0, 0, 0, 0.3);
   padding: 6px 10px 12px;
 }
+
 /* Tabs: Share / Embed — tab đang chọn = ô tối mờ chữ trắng */
 .se-tabs {
   display: flex;
@@ -337,6 +378,7 @@
   -webkit-user-select: none;
   user-select: none;
 }
+
 .se-tab {
   display: inline-flex;
   align-items: center;
@@ -350,21 +392,25 @@
   font-size: 15px;
   font-family: "Varela Round", sans-serif;
 }
+
 .se-tab.se-active {
   background: rgba(0, 0, 0, 0.22);
   color: #fff;
 }
+
 /* Nội dung mỗi tab: ô input 1 dòng + nút Copy (cùng 1 hàng) */
 .se-tabc {
   display: none;
   padding: 12px 0 2px;
 }
+
 .se-tabc.se-active {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 10px;
 }
+
 .se-input {
   flex: 1 1 auto;
   min-width: 0;
@@ -381,6 +427,7 @@
   color: #444;
   text-shadow: none;
 }
+
 .se-copy {
   flex: 0 0 auto;
   width: auto;
@@ -400,14 +447,17 @@
   text-shadow: none;
   cursor: pointer;
 }
+
 .se-copy:hover {
   background: #f2f6fd;
 }
+
 @keyframes se-dropdown-show {
   from {
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -426,19 +476,23 @@
     vertical-align: middle;
     text-align: left;
   }
+
   /* PC: chỉ hiện nút Embed (be), ẩn Share */
   .se-trigger-embed {
     display: inline-flex;
     background: #c0b798;
     color: rgba(0, 0, 0, 0.72);
   }
+
   .se-trigger-embed:hover,
   .se-trigger-embed.open {
     background: #cac1a2;
   }
+
   .se-trigger-share {
     display: none;
   }
+
   /* Nút nhỏ gọn như twoplayergames.org */
   .se-trigger {
     gap: 4px;
@@ -447,6 +501,7 @@
     padding: 2px 9px;
     font-size: 12px;
   }
+
   .se-trigger .monochrome-embed-close {
     font-size: 11px;
   }
@@ -461,16 +516,18 @@
     max-width: 92vw;
     z-index: 9999999;
   }
+
   /* Mũi nhọn (hình thoi) màu nền panel, lệch trái dưới nút Embed */
   .se-box::before {
     top: -5px;
     left: 26px;
-    background: rgba(240, 255, 255, 0.9);
+    background: #d6f7ff;
     transform: rotate(45deg);
   }
-  /* Nền SÁNG mờ (frosted pale) */
+
+  /* Nền đúng màu twoplayergames.org */
   .se-panel {
-    background: rgba(240, 255, 255, 0.9);
+    background: #d6f7ff;
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
     border-radius: 10px;
@@ -478,17 +535,21 @@
       0 12px 30px -12px rgba(0, 0, 0, 0.4);
     padding: 5px 8px 10px;
   }
+
   .se-tabs {
     gap: 6px;
     padding: 12px 0 2px;
   }
+
   /* Tab EMBED trước, SHARE sau (như hình 2) */
   .se-tab-embed {
     order: 0;
   }
+
   .se-tab-share {
     order: 1;
   }
+
   .se-tab {
     color: #333;
     text-transform: uppercase;
@@ -496,16 +557,20 @@
     padding: 9px 16px;
     border-radius: 25px;
   }
+
   .se-tab.se-active {
     background: rgba(0, 0, 0, 0.09);
     color: #222;
   }
+
   .se-tabc {
     padding: 12px 8px 6px;
   }
+
   .se-tabc.se-active {
     gap: 12px;
   }
+
   .se-input {
     background: #fff;
     color: #333;
@@ -514,6 +579,7 @@
     font-size: 13px;
     padding: 8px 10px;
   }
+
   .se-copy {
     background: #e9e9e9;
     color: #333;
@@ -522,6 +588,7 @@
     font-size: 13px;
     padding: 8px 14px;
   }
+
   .se-copy:hover {
     background: #dedede;
   }
@@ -536,9 +603,11 @@
   color: #c9d4c0;
   white-space: nowrap;
 }
+
 .stars::before {
   content: "★★★★★";
 }
+
 .stars-fill {
   position: absolute;
   top: 0;
@@ -548,6 +617,7 @@
   white-space: nowrap;
   display: block;
 }
+
 .stars-fill::before {
   content: "★★★★★";
 }
@@ -559,9 +629,11 @@
   align-items: center;
   gap: 4px;
 }
+
 .rate-stars.rate-stars {
   cursor: pointer;
 }
+
 .rate-stars .star-hit {
   position: absolute;
   top: 0;
@@ -574,21 +646,27 @@
   cursor: pointer;
   z-index: 2;
 }
+
 .rate-stars .star-hit:nth-child(2) {
   left: 0;
 }
+
 .rate-stars .star-hit:nth-child(3) {
   left: 20%;
 }
+
 .rate-stars .star-hit:nth-child(4) {
   left: 40%;
 }
+
 .rate-stars .star-hit:nth-child(5) {
   left: 60%;
 }
+
 .rate-stars .star-hit:nth-child(6) {
   left: 80%;
 }
+
 .rate-note {
   font-size: 12px;
   color: #64748b;
@@ -612,6 +690,7 @@
   font-weight: 700;
   font-size: 13px;
 }
+
 .gp-category-items .icon {
   font-size: 16px;
 }
@@ -628,24 +707,29 @@
   font-size: 1.25rem;
   line-height: 1.75;
 }
+
 .static-page h1 {
   color: #eb0000;
   font-size: 2.1rem;
   margin: 0 0 18px;
   text-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.5);
 }
+
 .static-page h2 {
   font-size: 1.6rem;
   margin: 1em 0 0.4em;
 }
+
 .static-page h3 {
   font-size: 1.3rem;
   margin: 1em 0 0.4em;
 }
+
 .static-page ul,
 .static-page ol {
   padding-left: 1.5em;
 }
+
 .static-page a {
   color: #0692c9;
 }
@@ -655,11 +739,13 @@
   text-align: center;
   padding: 6px 0 2px;
 }
+
 .footer-admin a {
   color: #93a0bd;
   font-size: 12px;
   text-decoration: none;
 }
+
 .footer-admin a:hover {
   color: #eb0000;
 }
@@ -674,6 +760,7 @@
   font-size: 30px;
   background: linear-gradient(135deg, #bfe3ff, #d9f3c7);
 }
+
 .game-list li .title.ph {
   opacity: 0.6;
 }
