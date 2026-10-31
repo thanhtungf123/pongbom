@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { getHistory, STORE_EVENT, type SavedGame } from "@/lib/clientStore";
+import {
+  getHistory,
+  STORE_EVENT,
+  syncRemovedGamesOnce,
+  type SavedGame,
+} from "@/lib/clientStore";
 
 /**
  * Lịch sử game đã chơi (localStorage, không cần đăng nhập). Hiển thị trong ô
@@ -17,6 +22,7 @@ export default function GameHistory() {
   useEffect(() => {
     const sync = () => setItems(getHistory());
     sync();
+    void syncRemovedGamesOnce(); // dọn game đã bị xoá khỏi hệ thống
     window.addEventListener(STORE_EVENT, sync);
     window.addEventListener("storage", sync);
     return () => {

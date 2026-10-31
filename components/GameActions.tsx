@@ -3,15 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Nút "Share" (cam) ở khung game — theo widget twoplayergames.org:
- * bấm "Share" -> xổ xuống 1 BẢNG (nền mờ nhẹ, có mũi nhọn nhô lên) gồm 2 tab
- * "Share" / "Embed"; mỗi tab là 1 ô input 1 dòng (link game / link nhúng) + Copy.
+ * Widget chia sẻ / nhúng game.
+ *  - PC (>820px): nút "</> Embed" (be, nhỏ gọn) như twoplayergames.org; bấm ->
+ *    dropdown NỔI (nền sáng mờ, có mũi nhọn) gồm 2 tab EMBED / SHARE + ô input
+ *    1 dòng + nút Copy.
+ *  - MOBILE (<=820px): 1 nút "Share" (cam) + bảng inline nền mờ nhẹ (giữ nguyên).
+ * CSS tự ẩn/hiện nút theo viewport (globals.css + responsive.css).
  */
 export default function GameActions({
   slug,
 }: {
   slug: string;
-  title?: string; // (không dùng — bỏ nút X Post)
+  title?: string; // (không dùng — đã bỏ nút X Post)
 }) {
   const [origin, setOrigin] = useState("");
   const [open, setOpen] = useState(false);
@@ -53,17 +56,31 @@ export default function GameActions({
     }
   };
 
-  const toggle = (e: React.MouseEvent) => {
+  // Bấm nút trigger: mở (và chọn tab tương ứng); bấm lại đúng tab đang mở -> đóng.
+  const openTab = (e: React.MouseEvent, t: "share" | "embed") => {
     e.preventDefault();
-    setOpen((o) => !o);
+    if (open && tab === t) setOpen(false);
+    else {
+      setTab(t);
+      setOpen(true);
+    }
   };
 
   return (
     <div className="game-page-share-embed" ref={wrapRef}>
+      {/* PC: Embed + X Post | Mobile: Share — ẩn/hiện bằng CSS theo viewport */}
       <a
         href="#"
-        className={`se-trigger${open ? " open" : ""}`}
-        onClick={toggle}
+        className={`se-trigger se-trigger-embed${open ? " open" : ""}`}
+        onClick={(e) => openTab(e, "embed")}
+        aria-expanded={open}
+      >
+        <span className="monochrome-embed-close" /> Embed
+      </a>
+      <a
+        href="#"
+        className={`se-trigger se-trigger-share${open ? " open" : ""}`}
+        onClick={(e) => openTab(e, "share")}
         aria-expanded={open}
       >
         <span className="monochrome-share" /> Share
@@ -74,13 +91,17 @@ export default function GameActions({
           <div className="se-panel">
             <ul className="se-tabs">
               <li
-                className={`se-tab${tab === "share" ? " se-active" : ""}`}
+                className={`se-tab se-tab-share${
+                  tab === "share" ? " se-active" : ""
+                }`}
                 onClick={() => setTab("share")}
               >
                 <span className="monochrome-share" /> Share
               </li>
               <li
-                className={`se-tab${tab === "embed" ? " se-active" : ""}`}
+                className={`se-tab se-tab-embed${
+                  tab === "embed" ? " se-active" : ""
+                }`}
                 onClick={() => setTab("embed")}
               >
                 <span className="monochrome-embed-close" /> Embed

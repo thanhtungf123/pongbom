@@ -71,3 +71,39 @@ export function pushHistory(game: SavedGame) {
   list.unshift(item);
   write(HISTORY_KEY, list.slice(0, HISTORY_MAX));
 }
+
+/* ============ TỰ DỌN GAME ĐÃ BỊ XOÁ KHỎI HỆ THỐNG ============ */
+
+// Chỉ chạy 1 lần mỗi lần tải trang (tránh gọi API trùng từ nhiều component).
+let syncStarted = false;
+
+/**
+ * Hỏi server slug nào còn tồn tại rồi bỏ các game đã bị xoá khỏi
+ * "Game của tôi" + "Lịch sử". write() tự phát STORE_EVENT -> component cập nhật.
+ */
+export async function syncRemovedGamesOnce(): Promise<void> {
+  if (syncStarted) return;
+  syncStarted = true;
+
+  const box = getGameBox();
+  const hist = getHistory();
+  const slugs = Array.from(new Set([...box, ...hist].map((g) => g.slug)));
+  if (slugs.length === 0) return;
+
+  try {
+    const r = await fetch(
+      `/api/games/exist?slugs=${encodeURIComponent(slugs.join(","))}`
+    );
+    if (!r.ok) return;
+    const d = (await r.json()) as { existing?: string[] };
+    const keep = new Set(d.existing || []);
+
+    const newBox = box.filter((g) => keep.has(g.slug));
+    const newHist = hist.filter((g) => keep.has(g.slug));
+    if (newBox.length !== box.length) write(BOX_KEY, newBox);
+    if (newHist.length !== hist.length) write(HISTORY_KEY, newHist);
+  } catch {
+    /* lỗi mạng -> giữ nguyên, thử lại lần tải sau */
+    syncStarted = false;
+  }
+}

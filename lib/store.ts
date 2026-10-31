@@ -239,6 +239,22 @@ export const getGame = unstable_cache(
 );
 
 /**
+ * Trong danh sách slug truyền vào, slug nào CÒN tồn tại trong hệ thống.
+ * Dùng cho "Game của tôi" / "Lịch sử" (localStorage) tự dọn game đã bị xoá.
+ * KHÔNG cache để phản ánh ngay khi admin xoá game.
+ */
+export async function getExistingSlugs(slugs: string[]): Promise<string[]> {
+  await dbConnect();
+  const clean = Array.from(new Set(slugs.filter(Boolean))).slice(0, 100);
+  if (!clean.length) return [];
+  const rows = (await GameModel.find(
+    { slug: { $in: clean } },
+    { slug: 1, _id: 0 }
+  ).lean()) as unknown as { slug: string }[];
+  return rows.map((r) => r.slug);
+}
+
+/**
  * Lấy game cho 1 khối trang chủ.
  *  - category rỗng = tất cả game hiển thị.
  *  - mode "top" = nhiều lượt chơi nhất; "new" = mới thêm gần đây nhất.

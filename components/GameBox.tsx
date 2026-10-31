@@ -6,6 +6,7 @@ import {
   getGameBox,
   removeGameBox,
   STORE_EVENT,
+  syncRemovedGamesOnce,
   type SavedGame,
 } from "@/lib/clientStore";
 
@@ -21,6 +22,7 @@ export default function GameBox() {
   useEffect(() => {
     const sync = () => setItems(getGameBox());
     sync();
+    void syncRemovedGamesOnce(); // dọn game đã bị xoá khỏi hệ thống
     window.addEventListener(STORE_EVENT, sync);
     window.addEventListener("storage", sync);
     return () => {
